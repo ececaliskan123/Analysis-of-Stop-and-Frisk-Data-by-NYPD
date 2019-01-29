@@ -59,14 +59,17 @@ normalizeVars <- c("height","weight","age","perobs")
 df[,normalizeVars] <- scale(df[,normalizeVars]) # scale does the job
 lapply(df[,normalizeVars], mean, na.rm=TRUE) #Verification: all means are (almost) zero
 
-# dependent variable -> we are only interested in "CPW"as suspected crime
+# -> we are only interested in "CPW"as suspected crime
 
-StrToMatch <- c("CPW","C.P.W","WEAPON") # assign patterns that indicate "CPW"
+StrToMatch <- c("CPW","C.P.W","WEAPON") # assign patterns that indicate "CPW", add more!
 df$CPW <- ifelse(grepl(paste(StrToMatch,collapse="|"),df$crimsusp)==TRUE,1,0)
 length(which(df$CPW==1)) #33527, correct!
 
 # only keep df$CPW==1
 df <- df[df$CPW==1,]
+
+# dependent variable: weapon found or not (pistol, rifle, knife,...)
+weaponfound <- ifelse(df$pistol=="Y" | df$riflshot=="Y" | df9$asltweap=="Y" | df$knifcuti=="Y" | df$machgun=="Y" | df$othrweap=="Y", 1,0)
 
 # validate, whether 33k are realistic: (the paper mentions 300k CPW stops for 09&2010)
 # nypd2009 <- read.csv("./Data/sqf-2009.csv")
