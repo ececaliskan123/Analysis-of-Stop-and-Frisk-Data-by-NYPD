@@ -59,9 +59,16 @@ install.packages("lubridate")
 library(lubridate)
 df$month <- month(dmy(df$datestop))
 
-# Day variable
+# Weekday variable
+
+install.packages("anytime")
+library(anytime)
+date <- anydate (df$datestop)
+df$weekday <- wday(date, label=TRUE)
 
 # Time of the day variable
+
+
 
 # Standardizing the entries for reasons for stops 
 
