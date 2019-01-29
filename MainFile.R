@@ -57,9 +57,29 @@ df$month <- month(dmy(df$datestop))
 # Day variable
 
 # Time of the day variable
-# missValues & Outliers
 
-# to be done!
+# Standardizing the inputs for reasons for stops 
+df$cs_objcs [df$cs_objcs == ""] <- "N"
+df$cs_objcs [df$cs_objcs == "1"] <- "Y"
+df$cs_descr [df$cs_descr == ""] <- "N"
+df$cs_descr [df$cs_descr == "1"] <- "Y"
+df$cs_casng [df$cs_casng == ""] <- "N"
+df$cs_casng [df$cs_casng == "1"] <- "Y"
+df$cs_lkout [df$cs_lkout == ""] <- "N"
+df$cs_lkout [df$cs_lkout == "1"] <- "Y"
+df$cs_cloth [df$cs_cloth == ""] <- "N"
+df$cs_cloth [df$cs_cloth == "1"] <- "Y"
+df$cs_drgtr [df$cs_drgtr == ""] <- "N"
+df$cs_drgtr [df$cs_drgtr == "1"] <- "Y"
+df$cs_furtv [df$cs_furtv == ""] <- "N"
+df$cs_furtv [df$cs_furtv == "1"] <- "Y"
+df$cs_vcrim [df$cs_vcrim == ""] <- "N"
+df$cs_vcrim [df$cs_vcrim == "1"] <- "Y"
+df$cs_bulge [df$cs_bulge == ""] <- "N"
+df$cs_bulge [df$cs_bulge == "1"] <- "Y"
+df$cs_other [df$cs_other == ""] <- "N"
+df$cs_other [df$cs_other == "1"] <- "Y"
+
 
 ###########################################
 #     3) ANALYSIS
