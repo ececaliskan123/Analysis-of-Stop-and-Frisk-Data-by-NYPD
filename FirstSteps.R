@@ -1,46 +1,48 @@
 rm(list = ls()) #remove all current objects to clear workspace
 
 # NEED FOR CHANGE - SET YOUR WORKING DIRECTORY!
-ownwd <- "C:/SPL_local" # your personal folder
+ownwd <- "C:/Users/Malte/Desktop/Uni/SPL/nypd-stopfrisk" # not necessary if working with GitHub
 
 
 # Prework
 setwd(ownwd) # set working directory
 
 
-# load annual datesets
+# load annual datesets (previously converted into .rds format to reduce size)
 
-nypd2013 <- read.csv("./Data/sqf-2013.csv")
-nypd2014 <- read.csv("./Data/sqf-2014.csv")
-nypd2015 <- read.csv("./Data/sqf-2015.csv")
-nypd2016 <- read.csv("./Data/sqf-2016.csv")
+nypd2013 <- readRDS("./Data-rds/sqf2013.rds")
+nypd2014 <- readRDS("./Data-rds/sqf2014.rds")
+nypd2015 <- readRDS("./Data-rds/sqf2015.rds")
+nypd2016 <- readRDS("./Data-rds/sqf2016.rds")
 
-# select relevant variables:
+# select relevant variables as stated in the paper:
 # sex, race, build, trhsloc (housing or transit), inout (inside or outside), 
 # year, datestop, timestop
 # all vars beginning with  "cs_" = reason for stop
 # radio; offunif; ht_feet ; ht_inch ; weight; age; perobs
+# columns indicating whether a weapon was found: pistol, riflshot, asltweap, knifcuti, machgun, othrweap
+
+weaponVars <- c("pistol", "riflshot", "asltweap", "knifcuti", "machgun", "othrweap")
 
 covariates <- c("year","datestop","timestop","pct","sex","race","ht_feet", "ht_inch", "weight", "age", 
-                "trhsloc","inout","offunif","perobs",grep("cs_",names(nypd2014), value=TRUE),
-                "crimsusp")  #crimsusp is needed to construct dependent variable
+                "trhsloc","inout","offunif","perobs",grep("cs_",names(nypd2014), value=TRUE), "radio",
+                "crimsusp", #crimsusp is needed to construct dependent variable
+                weaponVars) # weaponVars necessary to construct dependent variable (= weapon found or not)
+                
 
 # to be done: (2) local hit rate as described below
 
-## rename columns if necessafry
+# rename columns if necessary
 names(nypd2016)[1] = "year"   # column had a wrong name (= i...year)
 
-# only keep relevant covariates and apply rowbind
-nypd2013 <- subset(nypd2013,select=covariates)
-nypd2014 <- subset(nypd2014,select=covariates)
-nypd2015 <- subset(nypd2015,select=covariates)
-nypd2016 <- subset(nypd2016,select=covariates)
-
+# combine all rows into one file 
 df <- do.call(rbind,mget(ls(pattern = "nypd*")))   # combine all rows
 rm(list=ls(pattern = "nypd*"))  # remove old files
 
-# some post-processing (ht_feet & ht_inch to centimeters)
+# only keep relevant covariates
+df <- subset(df,select=covariates)
 
+# some post-processing (ht_feet & ht_inch to centimeters)
 df$ht_feet <- df$ht_feet*30.48 # convert feet to cm
 df$ht_inch <- df$ht_inch*2.54 #convert inch to cm
 df$height <- df$ht_feet+df$ht_inch
@@ -61,31 +63,18 @@ lapply(df[,normalizeVars], mean, na.rm=TRUE) #Verification: all means are (almos
 
 # -> we are only interested in "CPW"as suspected crime
 
-StrToMatch <- c("CPW","C.P.W","WEAPON") # assign patterns that indicate "CPW", add more!
+StrToMatch <- c("CPW","C.P.W","WEAPON","GUN","FIREARM") # assign patterns that indicate "CPW", add more!
 df$CPW <- ifelse(grepl(paste(StrToMatch,collapse="|"),df$crimsusp)==TRUE,1,0)
 length(which(df$CPW==1)) #33527, correct!
 
 # only keep df$CPW==1
 df <- df[df$CPW==1,]
 
-# dependent variable: weapon found or not (pistol, rifle, knife,...)
-weaponfound <- ifelse(df$pistol=="Y" | df$riflshot=="Y" | df9$asltweap=="Y" | df$knifcuti=="Y" | df$machgun=="Y" | df$othrweap=="Y", 1,0)
-
-# validate, whether 33k are realistic: (the paper mentions 300k CPW stops for 09&2010)
-# nypd2009 <- read.csv("./Data/sqf-2009.csv")
-# length(which(grepl("CPW",nypd2009$crimsusp)==TRUE)) #93k (out of 581k)
-# nypd2010 <- read.csv("./Data/sqf-2010.csv")
-# length(which(grepl("CPW",nypd2010$crimsusp)==TRUE)) #85k (out of 601k)
-# 
-# # how did the authors come up with 301k CPW stops?
-# # -> recording is not uniform!  
-# # see examples below
-# 
-# length(which(grepl("C.P.W",nypd2010$crimsusp)==TRUE)) #1722 
-# length(which(grepl("CRIMINAL POSSESSION WEAPON",nypd2010$crimsusp)==TRUE)) #117
-# length(which(grepl("WEAPON",nypd2010$crimsusp)==TRUE)) #504
+# dependent variable: weapon found or not (pistol, rifle, asltweap, knife, mchngun, other weapon)
+df$weaponfound <- ifelse(df$pistol=="Y" | df$riflshot=="Y" | df$asltweap=="Y" | df$knifcuti=="Y" | df$machgun=="Y" | df$othrweap=="Y", 1,0)
+  df[,c(weaponVars)] <- NULL  # no use for weaponVars anymore
 
 # ... to be continued
 
 saveRDS(df,file="nypd2013_2016.rds")
-write.csv(df,file="nypd2013_2016.csv")
+
