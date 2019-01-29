@@ -62,11 +62,13 @@ df$month <- month(dmy(df$datestop))
 # Weekday variable
 
 install.packages("anytime")
-library(anytime)
-date <- anydate (df$datestop)
+as.character(df$datestop)
+date <- anytime:: anydate (df$datestop)
 df$weekday <- wday(date, label=TRUE)
 
 # Time of the day variable
+
+time <- anytime:: anydate (df$timestop)
 
 
 
