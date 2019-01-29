@@ -24,13 +24,14 @@ source(....)
 ########################################
 #     2) CLEANING
 ########################################
+
 # Check and correct for missing values
 
 colSums(is.na.data.frame(df))
 sort(table(df$age)) # -0.317192507 is the most frequent value for standardized age.
 df$age [is.na(df$age)] <- -0.317192507
 
-# Calculate the z-score with the function for standardization
+# Define a function for standardization
 standardize <- function(x){
   
   mu <- mean(x)
@@ -40,6 +41,10 @@ standardize <- function(x){
   return(result)   }
 
 # Outlier treatment
+
+boxplot(df$weight)
+boxplot(df$height)
+boxplot(df$perobs)
 
 #  Replace the assumed outliers in standardized age, weight, height and perobs with a threshold value.
 
@@ -58,7 +63,8 @@ df$month <- month(dmy(df$datestop))
 
 # Time of the day variable
 
-# Standardizing the inputs for reasons for stops 
+# Standardizing the entries for reasons for stops 
+
 df$cs_objcs [df$cs_objcs == ""] <- "N"
 df$cs_objcs [df$cs_objcs == "1"] <- "Y"
 df$cs_descr [df$cs_descr == ""] <- "N"
