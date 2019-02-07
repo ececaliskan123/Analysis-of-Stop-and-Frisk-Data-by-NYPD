@@ -59,9 +59,7 @@
   # e.g. transformation and appropriate classes
   
   # some post-processing (ht_feet & ht_inch to centimeters)
-  df$ht_feet <- df$ht_feet*30.48 # convert feet to cm
-  df$ht_inch <- df$ht_inch*2.54 #convert inch to cm
-  df$height <- df$ht_feet+df$ht_inch
+  df$height <- df$ht_feet*30.48+df$ht_inch*2.54
   df[,c("ht_feet","ht_inch")] <- NULL
   range(df$height,na.rm = TRUE) #between 91.44 and 241.3 cm -> mistakes!?
   
@@ -76,9 +74,7 @@
   normalizeVars <- c("height","weight","age","perobs")
   df[,normalizeVars] <- scale(df[,normalizeVars]) # scale does the job
   lapply(df[,normalizeVars], mean, na.rm=TRUE) #Verification: all means are (almost) zero
+  
+  # SAVE FILE FOR FURTHER PROCESSING (cleaning etc.)
 
-
-# SAVE FILE FOR FURTHER PROCESSING (cleaning etc.)
-
-  saveRDS(df,file="nypd2013_2016.rds")
-
+  saveRDS(df,file="df.rds")
