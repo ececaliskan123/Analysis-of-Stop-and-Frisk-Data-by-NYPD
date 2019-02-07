@@ -14,13 +14,13 @@ source("LoadPackages.R") # load all required packages
 #####################################
 
 # Get the Dataset & merging
-source("FirstSteps.R")
+source("FirstSteps.R")  # -> output: df.rds    
 
-# Covariates: HitRate
-source("HitRate.R")
+# Transform Coordinates
+source("1.1_coordinates.R")  # -> output: df.rds   
 
-# Covariates: Pairwise Interaction Terms
-source(...)
+# Covariates: HitRate & InteractionTerms
+source("1.2_hitRate.R")    # -> output: df.rds (to be done)
 
 # Cleaning
 source("Cleaning.R")
