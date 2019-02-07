@@ -2,10 +2,13 @@
 
   # (previously converted into .rds format to reduce size)
   
+  nypd2012 <- readRDS("./Data-rds/sqf2012.rds")
   nypd2013 <- readRDS("./Data-rds/sqf2013.rds")
   nypd2014 <- readRDS("./Data-rds/sqf2014.rds")
   nypd2015 <- readRDS("./Data-rds/sqf2015.rds")
   nypd2016 <- readRDS("./Data-rds/sqf2016.rds")
+  
+# detect column names that are different
 
 # COMBINE AND SUBSET DATA FRAME
 
@@ -18,14 +21,17 @@
   
   weaponVars <- c("pistol", "riflshot", "asltweap", "knifcuti", "machgun", "othrweap")
   
-  covariates <- c("year","datestop","timestop","pct","sex","race","ht_feet", "ht_inch", "weight", "age", 
-                  "trhsloc","inout","offunif","perobs",grep("cs_",names(nypd2014), value=TRUE), "radio",
+  covariates <- c("year","datestop","timestop","pct","sex","race","ht_feet", 
+                  "ht_inch", "weight", "age", "trhsloc","inout","offunif",
+                  "perobs",grep("cs_",names(nypd2014), value=TRUE), "radio",
                   "crimsusp", #crimsusp is needed to construct dependent variable
-                  weaponVars) # weaponVars necessary to construct dependent variable (= weapon found or not)
+                  weaponVars, # weaponVars necessary to construct dependent variable (= weapon 1 or 0)
+                  "xcoord", "ycoord")
   
   # rename columns if necessary
   names(nypd2016)[1] = "year"   # column had a wrong name (= i...year)
-  
+  names(nypd2012)[c(grep("cm$",names(nypd2012)))] = gsub("cm","CM",names(nypd2012)[c(grep("cm$",names(nypd2012)))])
+    
   # combine all rows into one file 
   df <- do.call(rbind,mget(ls(pattern = "nypd*")))   # combine all rows
   rm(list=ls(pattern = "nypd*"))  # remove old files
