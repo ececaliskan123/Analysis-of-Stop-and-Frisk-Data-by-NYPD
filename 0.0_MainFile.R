@@ -5,8 +5,6 @@ rm(list = ls()) #remove all current objects to clear workspace
 
 # This File combines all code-snippets.
 
-ownwd <- "C:/SPL_local" # your personal folder
-setwd(ownwd) # set working directory
 source("LoadPackages.R") # load all required packages
 
 #####################################
