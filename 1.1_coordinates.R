@@ -18,7 +18,7 @@ df = st_as_sf(df,coords=c("xcoord","ycoord"),crs=102718)   #define spatial data,
   # Storing coordinates
   df      = st_transform(df, crs=32610) # transform to UTM format
   df$utmE = st_coordinates(df)[,1] # save column UTM East
-  df$utmW = st_coordinates(df)[,2] # save column UTM West
+  df$utmN = st_coordinates(df)[,2] # save column UTM West
   df      = st_transform(df, crs=4326) # switch to long/lat format
   df$long = st_coordinates(df)[,1] # add longitude (= x value)
   df$lat  = st_coordinates(df)[,2]  # add latitude (= y value)

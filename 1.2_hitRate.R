@@ -4,8 +4,24 @@
 
 
 # load dataset (for testing purpose only one year so far)
-df2009 <- readRDS("./Data-rds/sqf2009.rds")
+df <- readRDS("df.rds")
+df13 <- df[df$year==2013,]
 
+# some spatial stuff
+if(!require("spatstat")) install.packages("spatstat"); library("spatstat")
+
+  # spatstat requires xy-coordintes in .ppp format
+
+range(df$long) # -73.5 - -74.3
+range(df$lat) # 40.5 - 41.0
+range(df$utmE)
+
+df13$long
+
+data(bei)
+
+ppp = spatstat::ppp(df13$long,df13$lat,c(-73.5,-74.3),c(40.5,41.0))
+summary(ppp)
 
 # DEFINE COMPONENTS OF THE FORMULA
 
