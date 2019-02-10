@@ -9,19 +9,38 @@ df13 <- df[df$year==2013,]
 
 # some spatial stuff
 if(!require("spatstat")) install.packages("spatstat"); library("spatstat")
+if(!require("leaflet")) install.packages("leaflet"); library("leaflet")
+
+# change UTMW to UTMN
+names(df13)[29] = "utmN"
 
   # spatstat requires xy-coordintes in .ppp format
 
 range(df$long) # -73.5 - -74.3
 range(df$lat) # 40.5 - 41.0
 range(df$utmE)
+range(df$utmN)
 
-df13$long
-
-data(bei)
-
-ppp = spatstat::ppp(df13$long,df13$lat,c(-73.5,-74.3),c(40.5,41.0))
+ppp = spatstat::ppp(df13$utmE,df13$utmN,xrange=c(range(df$utmE)),yrange=c(range(df$utmW)))
 summary(ppp)
+plot(ppp)
+
+# rescale can be used to obtain a standard unit of length
+test = rescale(ppp)
+intensity = intensity(test)
+
+summary(ppp)$intensity
+plot(density(ppp,sigma=50))
+den <- density(ppp,sigma=50)
+
+# kernel density estimation with stats-package
+density(ppp,bw = "nrd0", kernel=gaussian, na.rm=TRUE) # just errors :(
+
+
+
+# pdf: pointpatterntutorial probably helpful! special chapter on "intensities"
+
+
 
 # DEFINE COMPONENTS OF THE FORMULA
 
