@@ -62,3 +62,38 @@ density(ppp,bw = "nrd0", kernel=gaussian, na.rm=TRUE) # just errors :(
     head(df2009$addrpct) # address precinct
     head(df2009$post) # location of stop post
     head(df2009$sector) # location of stop sector
+    
+## NEW SKETCH
+    
+    geodesic distance in kilometres
+    if(!require("Imap")) install.packages("Imap"); library("Imap") # function gdist
+    if(!require("geodist")) install.packages("geodist"); library("geodist") # check
+    
+    # for the geodist-package, we need rectangualer objects with lon/lat 
+    x <- df[df$year==2016,c("long","lat")]
+    test = geodist(x) # creates a pairwise matrix!
+    
+    
+    
+    yrs = 2015:2016
+    ObsYr = sapply(yrs, function(x) which(df$year==x)) # this fct. yields row numbers for each year
+    ObsAll = which(df$year==2015 | df$year==2016)
+    
+    sapply(ObsYr, function(x) sapply())
+    
+    sapply(test)
+    
+    for (i in unique(df$year==2015 | df$year==2016)){
+      
+      yr = 2012:2016
+      rows = 1:100
+      
+      test = sapply(obs, function(x) {
+        Imap::gdist(df$long[1],df$lat[1],df$long[x],df$lat[x],units="km")
+      })
+      test = exp (-(test*test)/2) 
+      HR = sum(df$weaponfound[obs]*test)/sum(test)
+      
+      
+    }
+    
