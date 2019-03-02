@@ -29,9 +29,9 @@ library(reshape)
 #Data Processing
 #*************************************
 
-#***********************
+#-----------------------
 #1. Read Datasets
-#***********************
+#-----------------------
 
 #Frisk reports
 ny13 = read.csv("2013.csv", header=TRUE)
@@ -48,9 +48,9 @@ all17  = readLines("cy2017.csv")
 skip17 = all17[-c(1:4)] 
 hmc17  = read.csv(textConnection(skip17), header=TRUE)
 
-#***********************
+#-----------------------
 #2. Create Datasets
-#***********************
+#-----------------------
 
 #Frisk reports  (Check: Subset several data frames with one command)
 info = c("pct", "race", "crimsusp", "xcoord", "ycoord")                                                      #Create list of info for data selection
@@ -87,9 +87,9 @@ hmc$PRECINCT = as.character(hmc$PRECINCT)
 #Data Visualization
 #*************************************
 
-#***********************
+#-----------------------
 #1. CPW and Homicide
-#***********************
+#-----------------------
 
 #Preparation
 pp_cpw           = count(report, "pct")                            #Count CPW by precinct
@@ -126,6 +126,17 @@ ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) +
     xlab("Precinct") +
     theme(axis.text.x= element_text(angle=45, hjust=1)) + 
     labs(title='Distribution of CPW versus Homicide')
+
+#-----------------------
+#2. CPW and Race
+#-----------------------
+#Plot Map
+
+
+#Remove unwanted files
+rm(ny13, ny14, ny15, ny16, all16, skip16, homi16, all17, skip17, homi17, check_header, check_type)
+
+#-----------------------------------------------------------------------
   
     #Individual plots
 ggplot(to_plot, aes(x=pct, y=pct_cpw))+
@@ -136,14 +147,6 @@ ggplot(to_plot, aes(x=pct, y=pct_hmc))+
   geom_bar(stat="identity")+theme(axis.text.x= element_text(angle=45, hjust=1)) + 
   labs(title='Homicide per precinct')
 
-
-#Plot Map
-
-
-#Remove unwanted files
-rm(ny13, ny14, ny15, ny16, all16, skip16, homi16, all17, skip17, homi17, check_header, check_type)
-
-#-----------------------------------------------------------------------
 #To Do
 #Replace NAs by one entry before
 report <- report[order(report$xcoord),]
