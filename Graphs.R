@@ -40,14 +40,11 @@ ny15 = read.csv("2015.csv", header=TRUE)
 ny16 = read.csv("2016.csv", header=TRUE)
 
 #Homicide reports
-all16  = readLines("cy2016.csv")  #Read in files as text
-skip16 = all16[-c(1:4)]           #Dropping the first 4 rows
-hmc16  = read.csv(textConnection(skip16), header=TRUE)
+hmc16  = readLines("cy2016.csv")                                   #Read in files as text
+hmc16  = read.csv(textConnection(hmc16[-c(1:4)]), header=TRUE)     #Dropping the first 4 rows, covert to dataset
 
-all17  = readLines("cy2017.csv")  
-skip17 = all17[-c(1:4)] 
-hmc17  = read.csv(textConnection(skip17), header=TRUE)
-
+hmc17  = readLines("cy2017.csv")  
+hmc17  = read.csv(textConnection(hmc17[-c(1:4)] ), header=TRUE)
 #-----------------------
 #2. Create Datasets
 #-----------------------
