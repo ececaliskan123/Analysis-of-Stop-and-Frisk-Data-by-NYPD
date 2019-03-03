@@ -72,12 +72,24 @@ density(ppp,bw = "nrd0", kernel=gaussian, na.rm=TRUE) # just errors :(
     if(!require("geodist")) install.packages("geodist"); library("geodist") # check
     
     # for the geodist-package, we need rectangualer objects with lon/lat 
-    x     = df[df$year==2016 & df$weaponfound==1,c("long","lat")]
-    test  = geodist(x) # creates a pairwise matrix! -- does the job 
+    x     = df[df$year>=2016,c("long","lat")]
+    test  = as.data.frame(geodist(x)/1000)  # creates a pairwise matrix! -- does the job 
+    
+    
+    df = df[df$year>=2016,]
+    df$new = (df$weaponfound*colSums(exp(-test^2/2))) / colSums(exp(-test^2/2))
+    
+    
+    
     
     # 
     
   # to be done!
+    
+  which(df$year==2016 & df$weaponfound==1)
+  
+  sapply(df[df$year==2016,])
+  
   sum(df$weaponfound*exp(-test[,]^2/2)/exp(-test[,]^2/2))
     
     
