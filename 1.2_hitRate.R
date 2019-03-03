@@ -65,15 +65,23 @@ density(ppp,bw = "nrd0", kernel=gaussian, na.rm=TRUE) # just errors :(
     
 ## NEW SKETCH
     
-    geodesic distance in kilometres
+    # we need a matrix first that creates all pairwise geodesic distances
+    
+    # geodesic distance in kilometres
     if(!require("Imap")) install.packages("Imap"); library("Imap") # function gdist
     if(!require("geodist")) install.packages("geodist"); library("geodist") # check
     
     # for the geodist-package, we need rectangualer objects with lon/lat 
-    x <- df[df$year==2016,c("long","lat")]
-    test = geodist(x) # creates a pairwise matrix!
+    x     = df[df$year==2016 & df$weaponfound==1,c("long","lat")]
+    test  = geodist(x) # creates a pairwise matrix! -- does the job 
+    
+    # 
+    
+  # to be done!
+  sum(df$weaponfound*exp(-test[,]^2/2)/exp(-test[,]^2/2))
     
     
+      
     
     yrs = 2015:2016
     ObsYr = sapply(yrs, function(x) which(df$year==x)) # this fct. yields row numbers for each year
