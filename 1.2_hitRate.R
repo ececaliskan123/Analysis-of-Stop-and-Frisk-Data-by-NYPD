@@ -72,17 +72,41 @@ density(ppp,bw = "nrd0", kernel=gaussian, na.rm=TRUE) # just errors :(
     if(!require("geodist")) install.packages("geodist"); library("geodist") # check
     
     # for the geodist-package, we need rectangualer objects with lon/lat 
-    x     = df[df$year>=2016,c("long","lat")]
-    test  = as.data.frame(geodist(x)/1000)  # creates a pairwise matrix! -- does the job 
+    
+    #x     = df[df$year>=2016,c("long","lat")]
+    
+    df$hitrate = NA
+    
+    for(yr in 2014:2016){
+      
+    test  = as.data.frame(geodist(df[df$year==yr,c("long","lat")])/1000)  # creates a pairwise matrix! -- does the job 
+    
+    df2 = df[df$year==yr,]
+    df2$new <- NA
     
     
-    df = df[df$year>=2016,]
-    df$new = (df$weaponfound*colSums(exp(-test^2/2))) / colSums(exp(-test^2/2))
+    # numerator
+    for (j in 1:nrow(df2)){
+      
+      interim_sum=0
+       for(i in 1:nrow(df2)){
+        interim_sum = interim_sum + df2$weaponfound[i]*test[j,i]
+       }
+      df2$new[j] = interim_sum
+      print(paste("Year=",yr,"    ",j/nrow(df2)))
+      
+    }
+    #denumerator
+    df2$new2 = NA
+    for (j in 1:nrow(df2)){
+      df2$new2[j] = colSums(test[j])
+      
+    }
     
+    df$hitRate[which(df$year==yr)] = df2$new/df2$new2
     
-    
-    
-    # 
+    }
+
     
   # to be done!
     
