@@ -24,7 +24,7 @@ df[,c("weight", "height", "perobs" , "age")] <- apply(df[,c("weight", "height", 
 
 
 # Outlier check
-boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxplots for comparision",
+boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxplots for outlier check",
        
         col = "orange",
         border = "brown",
@@ -63,6 +63,18 @@ time <- anytime:: anydate (df$timestop)
 
 
 # Standardizing the entries for reasons for stops 
+
+formatting <- function (vector) {
+  
+    loc <- which (vector == "")  
+    vector[loc] <- "N" 
+    loc2 <-which (vector == "1")
+  vector[loc] <- "Y"
+
+}
+
+df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other")] <- apply(df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other")],2, FUN= formatting)
+
 
 df$cs_objcs [df$cs_objcs == ""] <- "N"
 df$cs_objcs [df$cs_objcs == "1"] <- "Y"
