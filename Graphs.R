@@ -85,7 +85,7 @@ hmc$PRECINCT = as.character(hmc$PRECINCT)
 #*************************************
 
 #-----------------------
-#1. CPW and Homicide
+# CPW and Homicide
 #-----------------------
 
 #Preparation
@@ -123,34 +123,3 @@ ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) +
     xlab("Precinct") +
     theme(axis.text.x= element_text(angle=45, hjust=1)) + 
     labs(title='Distribution of CPW versus Homicide')
-
-#-----------------------
-#2. CPW and Race
-#-----------------------
-#Plot Map
-
-
-#Remove unwanted files
-rm(ny13, ny14, ny15, ny16, all16, skip16, homi16, all17, skip17, homi17, check_header, check_type)
-
-#-----------------------------------------------------------------------
-  
-    #Individual plots
-ggplot(to_plot, aes(x=pct, y=pct_cpw))+
-  geom_bar(stat="identity")+theme(axis.text.x= element_text(angle=45, hjust=1)) + 
-  labs(title='CPW stops per precinct')
-
-ggplot(to_plot, aes(x=pct, y=pct_hmc))+
-  geom_bar(stat="identity")+theme(axis.text.x= element_text(angle=45, hjust=1)) + 
-  labs(title='Homicide per precinct')
-
-#To Do
-#Replace NAs by one entry before
-report <- report[order(report$xcoord),]
-report1 <- report
-#!!!!!!!!!Can't run it
-report1 %>% 
-  #group_by(report$xcoord) %>% 
-  #fill(report$xcoord) %>%
-  fill(report$xcoord, .direction = "up")
-
