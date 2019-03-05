@@ -7,8 +7,9 @@
 # Check and correct for missing values
 
 colSums(is.na.data.frame(df))
-sort(table(df$age)) # -0.317192507 is the most frequent value for standardized age.
-df$age [is.na(df$age)] <- -0.317192507
+indeces <- complete.cases(df)
+MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
+df$age [is.na(df$age)] <- MFV # completes the NA's in age with most frequent value
 
 # Define a function for standardization
 standardize <- function(x){
@@ -19,27 +20,37 @@ standardize <- function(x){
   
   return(result)   }
 
-# Outlier treatment
+df[,c("weight", "height", "perobs" , "age")] <- apply(df[,c("weight", "height", "perobs", "age")], MARGIN=2, FUN=standardize)
 
-boxplot(df$weight)
-boxplot(df$height)
-boxplot(df$perobs)
+
+# Outlier check
+boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxplots for comparision",
+       
+        col = "orange",
+        border = "brown",
+        horizontal = TRUE,
+        notch = FALSE
+)
 
 #  Replace the assumed outliers in standardized age, weight, height and perobs with a threshold value.
+outlier.fun <- function(vector) {
+  
+vector [vector > 3] <- mean(vector) + 3*sd(vector)
+ 
+return (vector) }     
 
-df$age [df$age > 3] <- mean(df$age) + 3*sd(df$age)
-df$weight [df$weight > 3] <- mean(df$weight) + 3*sd(df$weight)
-df$height [df$height > 3] <- mean(df$height) + 3*sd(df$height)
-df$perobs [df$perobs > 3] <- mean(df$perobs) + 3*sd(df$perobs)
+df.new <- apply(data.frame(df$weight, df$height, df$perobs), 2, outlier.fun)
 
+df[,c("weight", "height", "perobs")] <- apply(df[,c("weight", "height", "perobs")], MARGIN=2, FUN=outlier.fun)
 
-# Month variable
+summary(df)
+
+# Extract the Month from Date
 install.packages("lubridate")
 library(lubridate)
 df$month <- month(dmy(df$datestop))
 
-# Weekday variable
-
+# Extract Weekday from Date
 install.packages("anytime")
 as.character(df$datestop)
 date <- anytime:: anydate (df$datestop)
