@@ -58,11 +58,7 @@
 
   df$age                      = as.numeric(df$age) # age has to be numeric or integer instead of character
   
-  # NORMALIZATION 
-          # Paper: "the latter four are all normalized to have mean 0 and variance 1" 
-          # -> height, weight, age, perobs
-  normalizeVars       = c("height","weight","age","perobs")
-  df[,normalizeVars]  = scale(df[,normalizeVars]) # scale does the job
+  
   
               #lapply(df[,normalizeVars], mean, na.rm=TRUE) #Verification: all means are (almost) zero
   
