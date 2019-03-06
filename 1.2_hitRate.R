@@ -5,139 +5,47 @@
 
 # load dataset (for testing purpose only one year so far)
 df <- readRDS("df.rds")
-df13 <- df[df$year==2013,]
 
-# some spatial stuff
-if(!require("spatstat")) install.packages("spatstat"); library("spatstat")
-if(!require("leaflet")) install.packages("leaflet"); library("leaflet")
-
-# change UTMW to UTMN
-names(df13)[29] = "utmN"
-
-  # spatstat requires xy-coordintes in .ppp format
-
-range(df$long) # -73.5 - -74.3
-range(df$lat) # 40.5 - 41.0
-range(df$utmE)
-range(df$utmN)
-
-ppp = spatstat::ppp(df13$utmE,df13$utmN,xrange=c(range(df$utmE)),yrange=c(range(df$utmW)))
-summary(ppp)
-plot(ppp)
-
-# rescale can be used to obtain a standard unit of length
-test = rescale(ppp)
-intensity = intensity(test)
-
-summary(ppp)$intensity
-plot(density(ppp,sigma=50))
-den <- density(ppp,sigma=50)
-
-# kernel density estimation with stats-package
-density(ppp,bw = "nrd0", kernel=gaussian, na.rm=TRUE) # just errors :(
+# load package to calculate (pairwise) geodesic distance
+if(!require("geodist")) install.packages("geodist"); library("geodist") # check
 
 
-
-# pdf: pointpatterntutorial probably helpful! special chapter on "intensities"
-
-
-
-# DEFINE COMPONENTS OF THE FORMULA
-
-    # a) n = total number of CPW stops during year t
-    StrToMatch <- c("CPW","C.P.W","WEAPON")
-    n <- length(which(grepl(paste(StrToMatch,collapse="|"),df2009$crimsusp)==TRUE))
-
-    # b) y(i) indicates whether the ith-stop was succesful (i.e. weapon found or not)
-    # columns addressing this issue: pistol, riflshot, asltweap, knifcuti, machgun, othrweap
-    
-    df2009$weaponfound <- ifelse(df2009$pistol=="Y" | df2009$riflshot=="Y" | df2009$asltweap=="Y" | df2009$knifcuti=="Y" | df2009$machgun=="Y" | df2009$othrweap=="Y", 1,0)
-
-    # c) geodesic distance
-    # s(i) is the location of the i-th stop (probably coordinates)
-    # but what is s (without index) ???
-    
-    head(df2009$xcoord)
-    head(df2009$ycoord)
-    head(df2009$addrpct) # address precinct
-    head(df2009$post) # location of stop post
-    head(df2009$sector) # location of stop sector
-    
-## NEW SKETCH
-    
-    # we need a matrix first that creates all pairwise geodesic distances
-    
-    # geodesic distance in kilometres
-    if(!require("Imap")) install.packages("Imap"); library("Imap") # function gdist
-    if(!require("geodist")) install.packages("geodist"); library("geodist") # check
-    
-    # for the geodist-package, we need rectangualer objects with lon/lat 
-    
-    #x     = df[df$year>=2016,c("long","lat")]
-    
-    df$hitrate = NA
-    
-    for(yr in 2014:2016){
-      
-    test  = as.data.frame(geodist(df[df$year==yr,c("long","lat")])/1000)  # creates a pairwise matrix! -- does the job 
-    
-    df2 = df[df$year==yr,]
-    df2$new <- NA
-    
-    
-    # numerator
-    for (j in 1:nrow(df2)){
-      
-      interim_sum=0
-       for(i in 1:nrow(df2)){
-        interim_sum = interim_sum + df2$weaponfound[i]*test[j,i]
-       }
-      df2$new[j] = interim_sum
-      print(paste("Year=",yr,"    ",j/nrow(df2)))
-      
-    }
-    #denumerator
-    df2$new2 = NA
-    for (j in 1:nrow(df2)){
-      df2$new2[j] = colSums(test[j])
-      
-    }
-    
-    df$hitRate[which(df$year==yr)] = df2$new/df2$new2
-    
-    }
-
-    
-  # to be done!
-    
-  which(df$year==2016 & df$weaponfound==1)
+hitRateCalculation = function(yr){
   
-  sapply(df[df$year==2016,])
+  # create pairwise geodesic distances in kilometres
+  df_yr_unweighted = geodist(df[df$year==yr,c("long","lat")], df[df$year==yr-1,c("long","lat")])/1000
   
-  sum(df$weaponfound*exp(-test[,]^2/2)/exp(-test[,]^2/2))
-    
-    
-      
-    
-    yrs = 2015:2016
-    ObsYr = sapply(yrs, function(x) which(df$year==x)) # this fct. yields row numbers for each year
-    ObsAll = which(df$year==2015 | df$year==2016)
-    
-    sapply(ObsYr, function(x) sapply())
-    
-    sapply(test)
-    
-    for (i in unique(df$year==2015 | df$year==2016)){
-      
-      yr = 2012:2016
-      rows = 1:100
-      
-      test = sapply(obs, function(x) {
-        Imap::gdist(df$long[1],df$lat[1],df$long[x],df$lat[x],units="km")
-      })
-      test = exp (-(test*test)/2) 
-      HR = sum(df$weaponfound[obs]*test)/sum(test)
-      
-      
-    }
-    
+  # apply formula according to p.371
+  df_yr_unweighted = exp(-(df_yr_unweighted^2)/2)
+  
+  # weight the distances according to binary variable, i.e. creates the numerator
+  df_yr_wpfound    = as.matrix(df$weaponfound[df$year==yr-1])
+  sums_weighted    = df_yr_unweighted %*% df_yr_wpfound
+  
+  # sum up rows, i.e. creates the denumerator
+  sums_unweighted  = apply(df_yr_unweighted, 1, sum)
+  
+  # hitRate = numerator/denumerator
+  hitRate_yr       = sums_weighted/sums_unweighted
+  
+  return(hitRate_yr)
+}
+
+# apply the function to each year
+
+years           = list(2014,2015,2016) #so far only these years, since 2013 & 2012 have too many rows
+list_hr         = lapply(years, function(x){X = hitRateCalculation(x)})
+names(list_hr)  = years
+
+
+df$hitRate      = NA # create dummy column
+
+# assign hitRate to the dataset
+
+for (yr in years){
+  
+  # assign hitRate to respective years
+  df$hitRate[which(df$year==yr)] = list_hr[[paste(yr,collapse = "")]]
+  
+}
+
