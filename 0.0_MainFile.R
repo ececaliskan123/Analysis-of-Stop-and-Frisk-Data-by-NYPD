@@ -18,7 +18,9 @@ source("1.0_FirstSteps.R")  # -> output: df.rds
 source("1.1_coordinates.R")  # -> output: df.rds   
 
 # Covariates: HitRate & InteractionTerms
-source("1.2_hitRate.R")    # -> output: df.rds (to be done)
+source("1.2_hitRate.R")    # -> output: df.rds (the current state of play doesn't calculate the hitRate for 2013, 
+#                           since this is only a dirty solution so far which takes pretty long. However,
+#                           it is included in the current "df.rds" in the GitHub folder.)
 
 # Cleaning
 source("Cleaning.R")
