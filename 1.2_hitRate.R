@@ -49,3 +49,5 @@ for (yr in years){
   
 }
 
+# save Output
+saveRDS(df,file="df.rds")
