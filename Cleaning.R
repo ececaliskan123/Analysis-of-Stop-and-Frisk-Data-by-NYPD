@@ -35,11 +35,11 @@ boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxpl
 #  Replace the assumed outliers in standardized age, weight, height and perobs with a threshold value.
 outlier.fun <- function(vector) {
   
-vector [vector > 3] <- mean(vector) + 3*sd(vector)
+vector [vector > 3] <- 3 
  
 return (vector) }     
 
-df.new <- apply(data.frame(df$weight, df$height, df$perobs), 2, outlier.fun)
+#df.new <- apply(data.frame(df$weight, df$height, df$perobs), 2, outlier.fun)
 
 df[,c("weight", "height", "perobs")] <- apply(df[,c("weight", "height", "perobs")], MARGIN=2, FUN=outlier.fun)
 
