@@ -12,7 +12,9 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
       to be done: transformation of coordinates to longitude/latitude
       
   2) ANALYSIS
-    
+      - SGD.R
+      - Logit.R
+      
     to be done: logistic regression, stochastic gradient descent
     
     
