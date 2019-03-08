@@ -17,6 +17,9 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
     
     
   3) PostProcessing
-      - Graphs.R - first graphs
+      - Plots.R - Plots that replicate those on the paper: 
+                (1) Grouped barplot to compare the distributions of homicide and stop cases per precinct
+                (2) GPS plots of stops on NYC google map to compare with racial distribution in the city
+      - FurtherAnalysis.R
       
     to be done: variable importance, geographic maps etc.
