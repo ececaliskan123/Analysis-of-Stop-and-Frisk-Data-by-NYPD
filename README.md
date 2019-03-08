@@ -8,8 +8,7 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
       - FirstSteps.R - merging of annual datasets, subsetting with relevant covariates, creation of dependent variable
       - hitRate.R - to be done: calculation of the complex hitRate-Formula
       - Cleaning.R - standardization, outliers, missing values
-      
-      to be done: transformation of coordinates to longitude/latitude
+      - coordinates.R - transformation of coordinates to longitude/latitude
       
   2) ANALYSIS
       - SGD.R
