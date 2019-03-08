@@ -9,9 +9,9 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
       - [x] hitRate.R - to be done: calculation of the complex hitRate-Formula
       - [x] Cleaning.R - standardization, outliers, missing values
       - [x] coordinates.R - transformation of coordinates to longitude/latitude
-      - [ ]**StrToMatch.R** - to include more CPW cases that are not marked as CPW 
+      - [ ] **StrToMatch.R** - to include more CPW cases that are not marked as CPW 
       
-  2) ANALYSIS  **TO BE DONE**
+  2) ANALYSIS  #**_TO BE DONE_**
       - SDG.R - process interaction terms which are used in logic model (next step)  **OR**  perform variable importance analysis and select based on results
       - Logit.R
       - RF.R 
