@@ -12,8 +12,9 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
       - [x] Cleaning.R - standardization, outliers, missing values
       
   2) ANALYSIS  #**_TO BE DONE_**
-      - SDG.R - process interaction terms which are used in logic model (next step)  **OR**  perform variable importance analysis and select based on results
       - Logit.R
+        - First run Logit, then fit Logit with SDG due to large size of variables. 
+        - **_p.372 Footnote 6_ package Vowpal Wabbit was used, all parameters adopted their default values in the package.**
       - RF.R 
    
   3) PostProcessing
