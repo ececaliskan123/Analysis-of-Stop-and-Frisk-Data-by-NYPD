@@ -6,12 +6,10 @@ df[, c("xcoord", "ycoord", "perobs", "formated_date", "timestop", "offunif" , "c
 
 
 df$year <- year(df$formated_date)
-training <- subset(df, year== 2013 | year== 2014)
+train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
 df$year <- NULL
 
 
 
-sgd(weaponfound ~ . + .*.)
-
-
+logitSGD <- sgd(weaponfound ~ . + .*., data = train, model= "glm", model.control= binomial(link="logit")) 
