@@ -17,10 +17,16 @@ source("1.0_FirstSteps.R")  # -> output: df.rds
 # Transform Coordinates
 source("1.1_coordinates.R")  # -> output: df.rds   
 
-# Covariates: HitRate & InteractionTerms
-source("1.2_hitRate.R")    # -> output: df.rds (the current state of play doesn't calculate the hitRate for 2013, 
-#                           since this is only a dirty solution so far which takes pretty long. However,
-#                           it is included in the current "df.rds" in the GitHub folder.)
+# Covariates: HitRate
+# source("1.2_hitRate.R")    # -> the code works! just excluded for now to save time! -> output: df.rds
+
+    # run this to save time:
+    df          = df[df$year!=min(unique(df$year)),]    # deletes year==2008 (only necessary to calculate hitRate2009)
+    hitRateAll  = readRDS("./Data-rds/hitRate.rds")  # the results after time-consuming calculations
+    df          = cbind(df, hitRateAll)
+                colnames(df)[which(names(df)=="df[, \"hitRate\"]")] = "hitRate" #rename column
+                rm(list = ls()[! ls() %in% "df"]) #remove everything except df from the global environment
+
 
 # Cleaning
 source("Cleaning.R")
