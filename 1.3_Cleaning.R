@@ -79,7 +79,5 @@ df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv",
 
 table(df$race)
 
-df$race [df$race == "I"] = "Z"
+df$race [df$race == "I" | df$race == " " | df$race == "U"] = "Z"
 df$race [df$race == "P"] = "Q"
-df$race [df$race == "U"] = "Z"
-df$race [df$race == ""]  = "Z"
