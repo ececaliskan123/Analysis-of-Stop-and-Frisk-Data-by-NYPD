@@ -21,6 +21,6 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
         - (1) Grouped barplot to compare the distributions of homicide and stop cases per precinct
         - (2) GPS plots of stops on NYC google map to compare with racial distribution in the city
       - [ ] FurtherAnalysis.R
-        - (1)
-        - (2)
+        - (1) Model check - Hit Rate vs Age / Sex / Race _(Not sure if possible)_ p.389 Appendix A (b). *Or use AUC*
+        - (2) 
         
