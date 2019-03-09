@@ -6,10 +6,10 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
 
   1) PreProcessing
       - [x] FirstSteps.R - merging of annual datasets, subsetting with relevant covariates, creation of dependent variable
+        - [x] Contains **StrToMatch** - to include more CPW cases that are not marked as CPW
       - [x] hitRate.R - to be done: calculation of the complex hitRate-Formula
-      - [x] Cleaning.R - standardization, outliers, missing values
       - [x] coordinates.R - transformation of coordinates to longitude/latitude
-      - [ ] **StrToMatch.R** - to include more CPW cases that are not marked as CPW 
+      - [x] Cleaning.R - standardization, outliers, missing values
       
   2) ANALYSIS  #**_TO BE DONE_**
       - SDG.R - process interaction terms which are used in logic model (next step)  **OR**  perform variable importance analysis and select based on results
