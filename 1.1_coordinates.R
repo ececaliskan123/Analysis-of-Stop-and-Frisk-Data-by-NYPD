@@ -15,13 +15,15 @@ df = readRDS("df.rds")
 df = df[!is.na(df$xcoord) & !is.na(df$ycoord),]             # deletes NAs
 df = st_as_sf(df,coords=c("xcoord","ycoord"),crs=102718)   #define spatial data, "102718" is the code for the US state planning
 
-  # Storing coordinates
-  df      = st_transform(df, crs=32610) # transform to UTM format
-  df$utmE = st_coordinates(df)[,1] # save column UTM East
-  df$utmN = st_coordinates(df)[,2] # save column UTM West
+  # store coordinates in long/lat format
   df      = st_transform(df, crs=4326) # switch to long/lat format
   df$long = st_coordinates(df)[,1] # add longitude (= x value)
   df$lat  = st_coordinates(df)[,2]  # add latitude (= y value)
+  
+  # Store coordinates in UTM format - necessary?
+  # df      = st_transform(df, crs=32610) # transform to UTM format
+  # df$utmE = st_coordinates(df)[,1] # save column UTM East
+  # df$utmN = st_coordinates(df)[,2] # save column UTM West
   
   df      = st_set_geometry(df, NULL) # remove the spatial component
   
