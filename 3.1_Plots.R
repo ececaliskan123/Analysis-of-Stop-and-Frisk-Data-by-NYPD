@@ -39,7 +39,7 @@ library(sf)
 source("1.0_FirstSteps.R", local = FALSE) 
 
 # Clean annual report
-source("Cleaning.R", local = FALSE)
+source("1.3_Cleaning.R", local = FALSE)
 
 # Process coordinates
 source("1.1_coordinates.R", local = FALSE)
@@ -72,31 +72,32 @@ rm(hmc16, hmc17, check_header, check_type)
 #=============================
 
 # Overview
-variates     = c("year", "pct", "sex", "race", "long", "lat")
-report       = subset(df, select = variates)
+report = df %>%
+             select("year", "pct", "sex", "race", "long", "lat") %>%
+             filter(year == "2013" | year == "2014" | year == "2015" | year == "2016")
 str(report)
 
 report$pct   = as.character(report$pct)     #Variable "PRECINCT" should be a string instead of integer
 
 unique(report$year)                         #Entries are normal
 unique(report$pct)                          #Entries are normal
-unique(report$race)                         #12 levels of races. Need to combine / replace
+unique(report$race)                         #8 levels of races. Need to combine / replace
 #------------
 # Clean race
 
 table(report$race)
 #A     B     I     P     Q     U     W     Z       
-#1152 57692   209  6944 21277   734  4061  1774     0 
+#440 21113    89  2339  6838   182  1426   588     0  
 
-report$race[report$race == "I"] = "Z"
-report$race[report$race == "P"] = "Q"
-report$race[report$race == "U"] = "Z"
-report$race[report$race == ""]  = "Z"
+report$race[report$race == "I" | 
+            report$race == "U" | 
+            report$race == ""]   = "Z"
+report$race[report$race == "P"]  = "Q"
 
 report$race = factor(report$race)
 table(report$race)
 #A     B     Q     W     Z 
-#1152 57692 28221  4061  2717 
+#440 21113  9177  1426   859 
 #------------
 
 any(is.na(report$long))                     #FALSE
