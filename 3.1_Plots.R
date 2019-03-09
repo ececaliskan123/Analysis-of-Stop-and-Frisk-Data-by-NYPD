@@ -53,17 +53,17 @@ source("1.1_coordinates.R", local = FALSE)
 #=============================
 
 # Read homicide reports
-hmc16        = readLines("cy2016.csv")                                   #Read in files as text
-hmc16        = read.csv(textConnection(hmc16[-c(1:4)]), header=TRUE)     #Dropping the first 4 rows, covert to dataset
+hmc16 = readLines("cy2016.csv")                                   #Read in files as text
+hmc16 = read.csv(textConnection(hmc16[-c(1:4)]), header=TRUE)     #Dropping the first 4 rows, covert to dataset
 
-hmc17        = readLines("cy2017.csv")  
-hmc17        = read.csv(textConnection(hmc17[-c(1:4)] ), header=TRUE)
+hmc17 = readLines("cy2017.csv")  
+hmc17 = read.csv(textConnection(hmc17[-c(1:4)] ), header=TRUE)
 
 # Create integrated homicide report
-hmc17        = hmc17[-(293:1917), -(26:99)]                              #Remove empty columns and rows
-check_header = cbind(colnames(hmc16), colnames(hmc17))                   #View(check_header)  #Checked, OK
-check_type   = sapply(list(hmc16,hmc17), sapply, class)                  #View(check_type)  #Checked, OK
-hmc          = rbind(hmc16, hmc17)                                       #Create complete dataset
+hmc17        = hmc17[-(293:1917), -(26:99)]               #Remove empty columns and rows
+check_header = cbind(colnames(hmc16), colnames(hmc17))    #View(check_header)  #Checked, OK
+check_type   = sapply(list(hmc16,hmc17), sapply, class)   #View(check_type)  #Checked, OK
+hmc          = rbind(hmc16, hmc17)                        #Create complete dataset
 
 rm(hmc16, hmc17, check_header, check_type)
 
@@ -114,7 +114,7 @@ hmc$PRECINCT = as.character(hmc$PRECINCT)   #Variable "PRECINCT" should be a str
 #=============================
 
 #Preparation
-pp_cpw              = count(report, pct)                              #Count CPW by precinct
+pp_cpw              = count(report, "pct")                              #Count CPW by precinct
 names(pp_cpw)[2]    = "freq_cpw"
 pp_cpw$pct_cpw      = pp_cpw$freq_cpw / sum(pp_cpw$freq_cpw) * 100
 
@@ -124,45 +124,55 @@ names(pp_hmc)[1]    = "pct"
 names(pp_hmc)[2]    = "freq_hmc"
 pp_hmc$pct_hmc      = pp_hmc$freq_hmc / sum(pp_hmc$freq_hmc) * 100
 
-joint               = merge.data.frame(pp_cpw, pp_hmc, by=intersect(names(pp_cpw), names(pp_hmc)), 
-                                       by.x="pct", by.y="pct", all.x=TRUE, sort=TRUE)
+joint               = merge.data.frame(pp_cpw, pp_hmc, by = intersect(names(pp_cpw), names(pp_hmc)), 
+                                       by.x = "pct", by.y = "pct", all.x = TRUE, sort = TRUE)
 joint[is.na(joint)] = 0                                               #Replace all NAs with 0
 str(joint)                                                            #All normal
 
 #Grouped Bar Plot
 dt1   = joint %>%
-            top_n(n=20,wt=pct_cpw) %>%
+            top_n(n = 20,wt = pct_cpw) %>%
             arrange(desc(pct_cpw))
 dt1   = dt1[,-c(2, 4)]
 dt1   = plyr::rename(dt1, c("pct"="Precinct", "pct_cpw"="CPW", "pct_hmc"="Homicide"))
 
-plot  = melt(dt1, id.vars='Precinct')
-plot  = rename(plot, c("value"="Percentage"))
+plot  = melt(dt1, id.vars = 'Precinct')
+plot  = rename(plot, c("value" = "Percentage"))
 
 order = plot %>%
-  filter(variable=="Homicide") %>%
+  filter(variable == "Homicide") %>%
   arrange(desc(Percentage)) %>%
   .$Precinct %>% as.character
 
 ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) + 
-  geom_bar(position = "dodge", stat = "identity") + 
-  scale_x_discrete(limits=order) + 
-  xlab("Precinct") +
-  theme(axis.text.x= element_text(angle=45, hjust=1)) + 
-  labs(title='Distribution of CPW versus Homicide')
+    geom_bar(position = "dodge", stat = "identity") + 
+    scale_x_discrete(limits = order) + 
+    xlab("Precinct") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    labs(title='Distribution of CPW versus Homicide')
 
 #=============================
 #2. CPW and Race
 #=============================
 
-# Preparation
-dt2 = filter(report, year=="2014" | year=="2015" | year=="2016")
+dt2 = filter(report, year == "2014" | year == "2015" | year == "2016")
 
 # First, user needs to register at Google Cloud Platform for a free API key
 register_google(key = "AIzaSyDke5EmHEXGoXkNvL76Ks4TL1tLtSKYqkQ")    #Set up API key to access Google Map for download
 
-NYC = get_map(location = c(lon = median(dt2$long), lat = median(dt2$lat), source = "google", maptype = "terrain", zoom = 11)
+NYC = get_map(location = c(lon = -73.90, lat = 40.71), source = "google", maptype = "terrain", zoom = 11)
 
 ggmap(NYC) + 
-  geom_point(data=dt2, mapping = aes(x=long, y=lat, color=race), size=1) + 
-  ggtitle("Distribution of CPW Stops Between 2014 and 2016")
+    geom_point(data = dt2, mapping = aes(x = long, y = lat, color = race), size = 1) + 
+    ggtitle("Distribution of CPW Stops Between 2014 and 2016") + 
+    scale_color_manual(name  = "Race", labels = c("Asian", 
+                                                  "Black", 
+                                                  "Hispanic", 
+                                                  "White", 
+                                                  "Others"), 
+                                       values = c("A" = "#CC66FF", 
+                                                  "B" = "#FF6666",
+                                                  "Q" = "#00CC33",
+                                                  "W" = "#0099FF",
+                                                  "Z" = "#CCCC00")
+                        )
