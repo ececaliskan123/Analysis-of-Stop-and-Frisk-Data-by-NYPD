@@ -3,15 +3,18 @@
 #
 # This file addresses missing values and treats outliers.
 # **********************************
+if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
+if(!require("anytime")) install.packages("anytime"); library("anytime")
+
 
 # Check and correct for missing values
 
 colSums(is.na.data.frame(df))
-indeces <- complete.cases(df)
 MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
-df$age [is.na(df$age)] <- MFV # completes the NA's in age with most frequent value
+df$age [is.na(df$age)] <- MFV # completes the NA's in age with Most Frequent Value
 
 # Define a function for standardization
+
 standardize <- function(x){
   
   mu <- mean(x)
@@ -24,75 +27,59 @@ df[,c("weight", "height", "perobs" , "age")] <- apply(df[,c("weight", "height", 
 
 
 # Outlier check
+
 boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxplots for outlier check",
-       
-        col = "orange",
-        border = "brown",
-        horizontal = TRUE,
-        notch = FALSE
+ ylim= c(-3,8),      
+ horizontal=TRUE,
+ boxwex=0.8, 
+ boxfill= c("red", "green" , "blue", "orange")
 )
 
+
 #  Replace the assumed outliers in standardized age, weight, height and perobs with a threshold value.
+
 outlier.fun <- function(vector) {
   
-vector [vector > 3] <- 3 
- 
-return (vector) }     
+vector [vector > 3] <- 3
+vector [vector < -3] <- -3
 
-#df.new <- apply(data.frame(df$weight, df$height, df$perobs), 2, outlier.fun)
+return (vector) }     
 
 df[,c("weight", "height", "perobs")] <- apply(df[,c("weight", "height", "perobs")], MARGIN=2, FUN=outlier.fun)
 
 summary(df)
 
-# Extract the Month from Date
-install.packages("lubridate")
-library(lubridate)
-df$month <- month(dmy(df$datestop))
+# Extract Month from Date 
 
-# Extract Weekday from Date
-install.packages("anytime")
-as.character(df$datestop)
-date <- anytime:: anydate (df$datestop)
-df$weekday <- wday(date, label=TRUE)
+df$formated_date <- mdy(df$datestop)
+df$month <- month(df$formated_date)
+df$datestop <-NULL
 
-# Time of the day variable
+# Extract Day of Week from Date
 
-time <- anytime:: anydate (df$timestop)
+df$weekday <- wday(df$formated_date, label=TRUE)
 
 
+# Standardizing the entries for reasons for stops. 
+#It's assumed that police officers leave reason for stop empty when it's a NO.Likewise they enter 1 when it'a YES. 
 
-# Standardizing the entries for reasons for stops 
-
-formatting <- function (vector) {
+formatting <- function (a) {
   
-    loc <- which (vector == "")  
-    vector[loc] <- "N" 
-    loc2 <-which (vector == "1")
-  vector[loc] <- "Y"
-
+  a [a == " "] <- "N"
+  a [a == 1] <- "Y"
+  
+  return(a)
+  
 }
 
 df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other")] <- apply(df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other")],2, FUN= formatting)
 
 
-# df$cs_objcs [df$cs_objcs == ""] <- "N"
-# df$cs_objcs [df$cs_objcs == "1"] <- "Y"
-# df$cs_descr [df$cs_descr == ""] <- "N"
-# df$cs_descr [df$cs_descr == "1"] <- "Y"
-# df$cs_casng [df$cs_casng == ""] <- "N"
-# df$cs_casng [df$cs_casng == "1"] <- "Y"
-# df$cs_lkout [df$cs_lkout == ""] <- "N"
-# df$cs_lkout [df$cs_lkout == "1"] <- "Y"
-# df$cs_cloth [df$cs_cloth == ""] <- "N"
-# df$cs_cloth [df$cs_cloth == "1"] <- "Y"
-# df$cs_drgtr [df$cs_drgtr == ""] <- "N"
-# df$cs_drgtr [df$cs_drgtr == "1"] <- "Y"
-# df$cs_furtv [df$cs_furtv == ""] <- "N"
-# df$cs_furtv [df$cs_furtv == "1"] <- "Y"
-# df$cs_vcrim [df$cs_vcrim == ""] <- "N"
-# df$cs_vcrim [df$cs_vcrim == "1"] <- "Y"
-# df$cs_bulge [df$cs_bulge == ""] <- "N"
-# df$cs_bulge [df$cs_bulge == "1"] <- "Y"
-# df$cs_other [df$cs_other == ""] <- "N"
-# df$cs_other [df$cs_other == "1"] <- "Y"
+#Standardazing the entries for races.
+
+table(df$race)
+
+df$race [df$race == "I"] = "Z"
+df$race [df$race == "P"] = "Q"
+df$race [df$race == "U"] = "Z"
+df$race [df$race == ""]  = "Z"
