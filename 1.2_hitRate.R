@@ -7,89 +7,55 @@
 df <- readRDS("df.rds")
 
 # load package to calculate (pairwise) geodesic distance
-if(!require("geodist")) install.packages("geodist"); library("geodist") # check
+if(!require("geodist")) install.packages("geodist"); library("geodist") # to calculate pairwise (pw) distances
+if(!require("pbapply")) install.packages("pbapply"); library("pbapply") # to track progress of lapply
 
 
-hitRateCalculation = function(yr){
+hitRateCalculation = function(yr,blocksize){
   
-  # create pairwise geodesic distances in kilometres
-  df_yr_unweighted = geodist(df[df$year==yr,c("long","lat")], df[df$year==yr-1,c("long","lat")])/1000
+  # create df(t) & df(t-1)
+  df_t  = df[df$year==yr,]
+  df_t1 = df[df$year==yr-1,]
   
-  # apply formula according to p.371
-  df_yr_unweighted = exp(-(df_yr_unweighted^2)/2)
+  # split up df(t)
+  block   = blocksize
+  totRow  = nrow(df_t)
+  splits  = rep(1:ceiling(totRow/block),each=block)[1:totRow]
+  df_splitted = split(df_t,splits) #contains df_t splitted by block of rows
   
-  # weight the distances according to binary variable, i.e. creates the numerator
-  df_yr_wpfound    = as.matrix(df$weaponfound[df$year==yr-1])
-  sums_weighted    = df_yr_unweighted %*% df_yr_wpfound
   
-  # sum up rows, i.e. creates the denumerator
-  sums_unweighted  = apply(df_yr_unweighted, 1, sum)
+  # use inside lapply:
+  df_t1_wpfound     = as.matrix(df_t1$weaponfound)  # weight the distances according to binary variable, i.e. creates the numerator
   
-  # hitRate = numerator/denumerator
-  hitRate_yr       = sums_weighted/sums_unweighted
+  # calculate the hit-Rate
   
-  return(hitRate_yr)
+  hitRate = pblapply(df_splitted, function(X){
+    gc() # garbage collection -> empty memory
+    step1 = geodist(X[,c("long","lat")], df_t1[,c("long","lat")])/1000
+    step1 = exp(-(step1^2)/2)
+    sums_unweighted = rowSums(step1)  #rowsum for block of rows
+    sums_weighted = step1 %*% df_t1_wpfound
+    hitRate = sums_weighted/sums_unweighted #for each chunk of rows
+  })
+  
+  return(unlist(hitRate))
 }
 
-# apply the function to each year
+years = unique(df$year)[unique(df$year)>min(unique(df$year))] # saves all years except the lowest (since this is only needed for the h(t-1) annotation)
+AllHRs = lapply(years, function(x){hitRateCalculation(x,500)}) # calculates hitRates for all yearas
+names(AllHRs) = years
 
-years           = list(2014,2015,2016) #so far only these years, since 2013 & 2012 have too many rows
-list_hr         = lapply(years, function(x){X = hitRateCalculation(x)})
-names(list_hr)  = years
+# AllHRs is a list with sub-lists -> unlist each sublist
+AllHRs = lapply(years, function(x){unlist(AllHRs[[paste(x)]])})
+names(AllHRs) = years
 
+# assign lsit elements to dataset
 
-df$hitRate      = NA # create dummy column
-
-# assign hitRate to the dataset
-
-for (yr in years){
-  
-  # assign hitRate to respective years
-  df$hitRate[which(df$year==yr)] = list_hr[[paste(yr,collapse = "")]]
+df$hitRate2 = NA
+for(i in years){
+  test =as.data.frame(AllHRs[[paste(i)]])
+  df$hitRate2[which(df$year==i)] = test[,1]
   
 }
 
-### DIRTY SOLUTION FOR 2013 -> all excluded to save calculation time!
 
-# df_coord = df[c("year","long","lat","weaponfound")]
-# df2012 = df_coord[df_coord$year==2012,]
-# df2012_1 = df2012[1:10000,]
-# df2012_2 = df2012[10001:20000,]
-# df2012_3 = df2012[20001:30000,]
-# df2012_4 = df2012[30001:40000,]
-# df2012_5 = df2012[40001:50000,]
-# df2012_6 = df2012[50001:60000,]
-# df2012_7 = df2012[60001:nrow(df2012),]
-# 
-# # store all in a list
-# dflist = list(df2012_1,df2012_2,df2012_3,df2012_4,df2012_5,df2012_6,df2012_7)
-# 
-# # apply HitRateCalcution on every element of the list
-# output = lapply(dflist, function(x){
-#   df_yr_unweighted = geodist(df[df$year==2013,c("long","lat")], x[,c("long","lat")])/1000
-#   df_yr_unweighted = exp(-(df_yr_unweighted^2)/2)
-#   
-#   df_yr_wpfound = as.matrix(x$weaponfound)
-#   sums_weighted = df_yr_unweighted %*% df_yr_wpfound
-#   
-#   sums_unweighted = apply(df_yr_unweighted, 1, sum)
-#   
-#   return(sums_weighted/sums_unweighted)
-#   
-# })
-# 
-# # put list-elements together
-# test = as.data.frame(unlist(output[[1]]))
-# test$two = as.data.frame(unlist(output[[2]]))
-# test$three = as.data.frame(unlist(output[[3]]))
-# test$four = as.data.frame(unlist(output[[4]]))
-# test$five = as.data.frame(unlist(output[[5]]))
-# test$six = as.data.frame(unlist(output[[6]]))
-# test$seven = as.data.frame(unlist(output[[7]]))
-# test$hitRate2013 = apply(test,1,sum)
-# 
-# # add to dataset
-# df$hitRate[which(df$year==2013)] = test$hitRate2013
-
-# save Output
-saveRDS(df,file="df.rds")
