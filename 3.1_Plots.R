@@ -160,7 +160,7 @@ dt2 = filter(report, year == "2014" | year == "2015" | year == "2016")
 # First, user needs to register at Google Cloud Platform for a free API key
 register_google(key = "AIzaSyDke5EmHEXGoXkNvL76Ks4TL1tLtSKYqkQ")    #Set up API key to access Google Map for download
 
-NYC = get_map(location = c(lon = -73.90, lat = 40.71), source = "google", maptype = "terrain", zoom = 11)
+NYC = get_map(location = c(lon = median(dt2$long), lat = median(dt2$lat)), source = "google", maptype = "terrain", zoom = 11)
 
 ggmap(NYC) + 
     geom_point(data = dt2, mapping = aes(x = long, y = lat, color = race), size = 1) + 
