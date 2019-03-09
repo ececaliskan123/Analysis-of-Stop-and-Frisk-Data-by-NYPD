@@ -25,11 +25,12 @@ source("1.1_coordinates.R")  # -> output: df.rds
     hitRateAll  = readRDS("./Data-rds/hitRate.rds")  # the results after time-consuming calculations
     df          = cbind(df, hitRateAll)
                 colnames(df)[which(names(df)=="df[, \"hitRate\"]")] = "hitRate" #rename column
-                rm(list = ls()[! ls() %in% "df"]) #remove everything except df from the global environment
-
+                
 
 # Cleaning
-source("Cleaning.R")
+source("1.3_Cleaning.R")
+    saveRDS(df,file="df.rds") # I RAN THE CODE UNTIL HERE AND SAVED IT!
+    rm(list = ls()[! ls() %in% "df"]) #remove everything except df from the global environment
 
 ########################################
 #     2) ANALYSIS
