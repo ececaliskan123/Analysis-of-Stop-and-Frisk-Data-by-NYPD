@@ -49,13 +49,19 @@ names(AllHRs) = years
 AllHRs = lapply(years, function(x){unlist(AllHRs[[paste(x)]])})
 names(AllHRs) = years
 
-# assign lsit elements to dataset
+# assign list elements to dataset
 
-df$hitRate2 = NA
+df$hitRate = NA
 for(i in years){
   test =as.data.frame(AllHRs[[paste(i)]])
-  df$hitRate2[which(df$year==i)] = test[,1]
-  
+  df$hitRate[which(df$year==i)] = test[,1]
 }
 
+# delete the first year (since it was only necessary for hitRate calculation)
+
+firstYear = min(unique(df$year))
+df = df[df$year!=firstYear,]
+
+# SAVE FILE FOR FURTHER PROCESSING (cleaning etc.)
+saveRDS(df,file="df.rds")
 
