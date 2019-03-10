@@ -12,7 +12,7 @@ if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMet
 df = readRDS("df.rds")
 # reduce df for testing purpose (only a fraction of each year)
 set.seed(123)
-percentage     = 0.1
+percentage     = 0.02
 
 reducedTrainYrs  = lapply(c(2009,2010), function(x){
   df_yr = df[df$year==x,]
@@ -42,13 +42,19 @@ test[,c("long","lat","CPW","timestop","crimsusp")] = NULL
 train[,c("long","lat","CPW","timestop","crimsusp")] = NULL
 train[sapply(train, is.character)] = lapply(train[sapply(train, is.character)],as.factor) #convert all characters into factors
 
+train$weaponfound = as.factor(train$weaponfound) # to make it a classification-problem! (no regression)
+test$weaponfound = as.factor(test$weaponfound) # to make it a classification-problem! (no regression)
 
 rf <- randomForest(weaponfound~ . , # formula
                    data = train, 
-                   mtry = 10, 
-                   ntree = 800)
+                   #mtry = 10, 
+                   ntree = 1000,
+                   do.trace = 10 #sets a progress bar)
 
-yhat = predict(rf)
+yhat = predict(rf, type="class")
 auc(test$weaponfound,yhat) #0.66
 
 
+# parallel computing!
+if(!require("parallel")) install.packages("parallel"); library("parallel")
+detectCores()
