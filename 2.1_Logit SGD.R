@@ -1,5 +1,6 @@
 if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
-
+if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
+if(!require("dplyr")) install.packages("dplyr"); library("dplyr") 
 
 
 df <- readRDS("df.rds")
@@ -67,8 +68,34 @@ accuracy.elasticnet <- Accuracy(pred.elasticnet, class = loans$BAD)
 #round(coef(lr), 2)
 round(coef(elasticnet, 0.01), 2)[,1]
 
+#Second Alternative: glinternet
+
 # Adds automaticaly interaction terms to LASSO
-library(glinternet)
+
+#Categorical variables must be turned into intergers starting from 0
+# get the numLevels vector containing the number of categories
+X <- df
+i_num <- sapply(df, is.numeric)
+
+X[, !i_num] <- apply(X[, !i_num], 2, factor) %>% as.data.frame()
+numLevels <- X %>% sapply(nlevels)
+numLevels[numLevels==0] <- 1
+
+# make the categorical variables take integer values starting from 0
+X[, !i_num] <- apply(X[, !i_num], 2, function(col) as.integer(as.factor(col)) - 1)
+                     
+
 set.seed(1001)
 cv_fit <- glinternet.cv(X, y, numLevels)
 plot(cv_fit)
+   
+i_1Std <- which(cv_fit$lambdaHat1Std == cv_fit$lambda)
+coefs <- coef(cv_fit$glinternetFit)[[i_1Std]]
+                    
+   coefs$interactions
+                     coefs$interactionsCoef$contcont
+                     coefs$interactionsCoef$catcont
+                     coefs$interactionsCoef$catcat
+
+
+   
