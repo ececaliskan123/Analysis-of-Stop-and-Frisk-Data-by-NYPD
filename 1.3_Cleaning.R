@@ -7,11 +7,18 @@ if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
 if(!require("anytime")) install.packages("anytime"); library("anytime")
 
 
-# Check and correct for missing values
+# Check and correct for missing values with Most Frequent Valaue(Mode)
 
-colSums(is.na.data.frame(df))
+colSums(is.na.data.frame(df)) # Missing values in Age are spotted.
 MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
-df$age [is.na(df$age)] <- MFV # completes the NA's in age with Most Frequent Value
+df$age [is.na(df$age)] <- MFV 
+
+# There are empty entries in Inside or Outside. Set them to NA and then impute
+df$inout [df$inout == " "] <-NA
+MFV2 <- names(sort(table(df$inout), decreasing=TRUE)[1]) 
+df$inout [is.na(df$inout)] <- MFV2 
+
+
 
 # Define a function for standardization
 
@@ -23,7 +30,7 @@ standardize <- function(x){
   
   return(result)   }
 
-df[,c("weight", "height", "perobs" , "age")] <- apply(df[,c("weight", "height", "perobs", "age")], MARGIN=2, FUN=standardize)
+df[,c("weight", "height", "age")] <- apply(df[,c("weight", "height","age")], MARGIN=2, FUN=standardize)
 
 
 # Outlier check
@@ -61,23 +68,27 @@ df$weekday <- wday(df$formated_date, label=TRUE)
 
 
 # Standardizing the entries for reasons for stops. 
-#It's assumed that police officers leave reason for stop empty when it's a NO.Likewise they enter 1 when it'a YES. 
+#It's assumed that police officers leave reason for stop empty or enter 0 when it's a NO.Likewise they enter 1 when it'a YES. 
 
 formatting <- function (a) {
   
-  a [a == " "] <- "N"
+  a [a == " " | a== 0 ] <- "N"
   a [a == 1] <- "Y"
   
   return(a)
   
 }
 
-df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other")] <- apply(df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other")],2, FUN= formatting)
+df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other","cs_lkout" , "radio")] <- apply(df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other","cs_lkout","radio")],2, FUN= formatting)
+
 
 
 #Standardazing the entries for races.
-
-table(df$race)
-
 df$race [df$race == "I" | df$race == " " | df$race == "U"] = "Z"
 df$race [df$race == "P"] = "Q"
+
+# Standardizing entries for location of stop
+df$trhsloc [df$trhsloc == "H"]  <- "P"
+df$trhsloc [df$trhsloc == " "] <- "Other"
+
+
