@@ -1,6 +1,8 @@
 if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
 if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
 if(!require("dplyr")) install.packages("dplyr"); library("dplyr") 
+if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") 
+
 
 
 df <- readRDS("df.rds")
@@ -62,7 +64,8 @@ elasticnet <- glmnet(x = x, y = y, family = "binomial", standardize = TRUE,
 plot(y = elasticnet$dev.ratio, x = elasticnet$lambda)
 coef(elasticnet, 0.01)
 pred.elasticnet <- predict(elasticnet, newx = x, s = 0.01, type = "response")
-accuracy.elasticnet <- Accuracy(pred.elasticnet, class = loans$BAD)
+accuracy.elasticnet <- Accuracy(pred.elasticnet, class = test$weaponfound)
+auc(test$weaponfound,pred.elasticnet)
 
 # Compare coefficients of standard and regularized logit models
 #round(coef(lr), 2)
