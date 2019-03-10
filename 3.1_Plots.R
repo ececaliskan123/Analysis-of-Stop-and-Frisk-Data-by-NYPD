@@ -6,11 +6,9 @@ setwd("D:/Ling Ki/Uni/Master/HU-MEMS/Sem 3/Statistidal Programming Language/Proj
 
 #Install packages
 install.packages("arsenal")
-install.packages("anytime")
 install.packages("dplyr")
 install.packages("devtools")
 install.packages("foreign")
-install.packages("lubridate")
 install.packages("plyr")
 install.packages("tidyverse")
 install.packages("ggmap")
@@ -20,7 +18,6 @@ install.packages("sf")
 
 #Load packages
 library(arsenal)
-library(anytime)
 library(base)
 library(data.table)
 library(devtools)
@@ -28,21 +25,19 @@ library(dplyr)
 library(foreign)
 library(plyr)
 library(lattice)
-library(lubridate)
 library(tidyverse)
 library(ggmap)
 library(reshape)
 library(RCurl)
 library(sf)
 
-# Read annual reports
+# Source codes
 source("1.0_FirstSteps.R", local = FALSE) 
-
-# Clean annual report
 source("1.3_Cleaning.R", local = FALSE)
-
-# Process coordinates
 source("1.1_coordinates.R", local = FALSE)
+
+# Source previous output
+df = readRDS("df.rds")
 
 #*************************************
 #Data Processing
@@ -72,29 +67,25 @@ rm(hmc16, hmc17, check_header, check_type)
 #=============================
 
 # Overview
-report = df %>%
-             select("year", "pct", "sex", "race", "long", "lat") %>%
-             filter(year == "2013" | year == "2014" | year == "2015" | year == "2016")
+timespan   = c(2013, 2014, 2015, 2016)
+report     = df %>% 
+  select("year", "pct", "sex", "race", "long", "lat") %>% 
+  filter(year %in% timespan)
 str(report)
 
-report$pct   = as.character(report$pct)     #Variable "PRECINCT" should be a string instead of integer
+report$pct = as.character(report$pct)       #Variable "PRECINCT" should be a string instead of integer
 
 unique(report$year)                         #Entries are normal
 unique(report$pct)                          #Entries are normal
-unique(report$race)                         #8 levels of races. Need to combine / replace
+unique(report$race)                         #9 levels of races. Need further cleaning
 #------------
-# Clean race
+# Further cleaning race
 
 table(report$race)
 #A     B     I     P     Q     U     W     Z       
-#440 21113    89  2339  6838   182  1426   588     0  
+#440 21113     0     0  9177     0  1426   859     0   
 
-report$race[report$race == "I" | 
-            report$race == "U" | 
-            report$race == ""]   = "Z"
-report$race[report$race == "P"]  = "Q"
-
-report$race = factor(report$race)
+report$race = factor(report$race)           #Remove factors with 0 observation
 table(report$race)
 #A     B     Q     W     Z 
 #440 21113  9177  1426   859 
@@ -104,7 +95,7 @@ any(is.na(report$long))                     #FALSE
 any(is.na(report$lat))                      #FALSE
 
 str(hmc)                                    
-hmc$PRECINCT = as.character(hmc$PRECINCT)   #Variable "PRECINCT" should be a string instead of integer
+hmc$PRECINCT = as.character(hmc$PRECINCT)   #Change variable "PRECINCT" to character
 
 #*************************************
 #Data Visualization
@@ -115,36 +106,37 @@ hmc$PRECINCT = as.character(hmc$PRECINCT)   #Variable "PRECINCT" should be a str
 #=============================
 
 #Preparation
-pp_cpw              = count(report, "pct")                              #Count CPW by precinct
+pp_cpw              = count(report, "pct")                            #Count CPW by precinct
 names(pp_cpw)[2]    = "freq_cpw"
-pp_cpw$pct_cpw      = pp_cpw$freq_cpw / sum(pp_cpw$freq_cpw) * 100
+pp_cpw$pct_cpw      = pp_cpw$freq_cpw / sum(pp_cpw$freq_cpw) * 100    #Calculate weights of stops per precinct
 
-pp_hmc              = as.data.frame(table(hmc$PRECINCT))              #Count homicide by precinct
-#pp_hmc              = plyr::rename(pp_hmc, c("Var1"=="pct", "Freq"=="freq_hmc"))
-names(pp_hmc)[1]    = "pct"
-names(pp_hmc)[2]    = "freq_hmc"
+pp_hmc              = as.data.frame(table(hmc$PRECINCT))              
+pp_hmc              = plyr::rename(pp_hmc, c("Var1"="pct", "Freq"="freq_hmc"))
 pp_hmc$pct_hmc      = pp_hmc$freq_hmc / sum(pp_hmc$freq_hmc) * 100
 
 joint               = merge.data.frame(pp_cpw, pp_hmc, by = intersect(names(pp_cpw), names(pp_hmc)), 
                                        by.x = "pct", by.y = "pct", all.x = TRUE, sort = TRUE)
-joint[is.na(joint)] = 0                                               #Replace all NAs with 0
-str(joint)                                                            #All normal
+joint[is.na(joint)] = 0       #Replace all NAs with 0                                         
+str(joint)                    #All normal                                       
 
 #Grouped Bar Plot
-dt1   = joint %>%
-            top_n(n = 20,wt = pct_cpw) %>%
-            arrange(desc(pct_cpw))
-dt1   = dt1[,-c(2, 4)]
-dt1   = plyr::rename(dt1, c("pct"="Precinct", "pct_cpw"="CPW", "pct_hmc"="Homicide"))
+dt1   = joint %>% 
+  top_n(n = 20,wt = pct_cpw) %>% 
+  arrange(desc(pct_cpw))
+dt1   = plyr::rename(dt1[,-c(2, 4)], 
+                     c("pct"="Precinct", 
+                       "pct_cpw"="CPW", 
+                       "pct_hmc"="Homicide")
+                     )
 
 plot  = melt(dt1, id.vars = 'Precinct')
 plot  = rename(plot, c("value" = "Percentage"))
 
-order = plot %>%
-  filter(variable == "Homicide") %>%
-  arrange(desc(Percentage)) %>%
+order = plot %>% 
+    filter(variable == "Homicide") %>% 
+    arrange(desc(Percentage)) %>% 
   .$Precinct %>% as.character
-
+    
 ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) + 
     geom_bar(position = "dodge", stat = "identity") + 
     scale_x_discrete(limits = order) + 
@@ -156,10 +148,13 @@ ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) +
 #2. CPW and Race
 #=============================
 
-dt2 = filter(report, year == "2014" | year == "2015" | year == "2016")
-
 # First, user needs to register at Google Cloud Platform for a free API key
 register_google(key = "AIzaSyDke5EmHEXGoXkNvL76Ks4TL1tLtSKYqkQ")    #Set up API key to access Google Map for download
+
+#------------
+# For the period 2014-2016
+#------------
+dt2 = filter(report, year == "2014" | year == "2015" | year == "2016")
 
 NYC = get_map(location = c(lon = median(dt2$long), lat = median(dt2$lat)), source = "google", maptype = "terrain", zoom = 11)
 
@@ -177,3 +172,31 @@ ggmap(NYC) +
                                                   "W" = "#0099FF",
                                                   "Z" = "#CCCC00")
                         )
+
+#------------
+# For the period 2011-2012
+#------------
+# To randomly select 10,000 samples for plot
+set.seed(12345)
+
+pp      = df %>%
+             select("year", "race", "long", "lat") %>%
+             filter(year == "2011" | year == "2012") %>%
+             sample_n(size = 10000)
+
+pp$race = factor(pp$race)
+
+ggmap(NYC) + 
+  geom_point(data = pp, mapping = aes(x = long, y = lat, color = race), size = 1) + 
+  ggtitle("Distribution of CPW Stops Between 2011 and 2012") + 
+  scale_color_manual(name  = "Race", labels = c("Asian", 
+                                                "Black", 
+                                                "Hispanic", 
+                                                "White", 
+                                                "Others"), 
+                     values = c("A" = "#CC66FF", 
+                                "B" = "#FF6666",
+                                "Q" = "#00CC33",
+                                "W" = "#0099FF",
+                                "Z" = "#CCCC00")
+  )
