@@ -47,6 +47,13 @@ df[, chrIdx] <- lapply(df[, chrIdx], factor)
 
 glm <- speedglm(weaponfound ~.*., data= train, family = binomial(link="logit"))
 
+parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "FAST",
+                                                         nthreads = 2))
+
+parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK",
+   
+                                                                    
+                                                       nthreads = 2))
 # sgd Package for Logit regression wih Stochastic Gradient Descent
 #logitSGD <- sgd(weaponfound ~ . + .*., data = train, model= "glm", model.control= binomial(link="logit")) 
 # sgd package is removed from CRAN repository. Older versions cannot be manually installed from Archive.  ERROR: NON-ZERO EXIT STATUS
@@ -59,8 +66,7 @@ glm <- speedglm(weaponfound ~.*., data= train, family = binomial(link="logit"))
 # The main function seems to be glmnet(), so let's look at it
 ?glmnet
 
-char_vars <- names(sapply(df, is.character)) 
-df[, num_vars] <- sapply(df[, num_vars], FUN = as.factor)
+
 
 # Glmnet doesn't have formula interface, create model.matrix which expand factors into dummies
 
