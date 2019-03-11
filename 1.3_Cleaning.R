@@ -13,6 +13,7 @@ MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1]))
 df$age [is.na(df$age)] <- MFV 
 
 # There are empty entries in Inside or Outside. Set them to NA and then impute.
+df$inout <- as.character(df$inout)
 df$inout [df$inout == " "] <-NA
 MFV2 <- names(sort(table(df$inout), decreasing=TRUE)[1]) 
 df$inout [is.na(df$inout)] <- MFV2 
@@ -54,7 +55,6 @@ df[,c("weight", "height", "perobs", "age")] <- apply(df[,c("weight", "height", "
 
 summary(df)
 
-Sys.setenv(TZ="Europe/Berlin")
 
 # Extract Month from Date 
 
@@ -84,13 +84,17 @@ df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv",
 
 #Standardazing the entries for races. I stands for Indiana and set to  Z (others). U is unknown and also set to Z (others).
 #Both Q and P mean Hispanic.
+df$race <- as.character(df$race)
 df$race [df$race == "I" | df$race == " " | df$race == "U"] = "Z"
 df$race [df$race == "P"] = "Q"
 
 # Standardizing entries for location of stop
-# It's assumed that both H and P stand for public housing. The cells were left emty when the location neither housing nor transit.
+# It's assumed that both H and P stand for public housing. The cells were left emty when the location neither housing nor transit. Z is assigned for other locations.
+df$trhsloc <- as.character(df$trhsloc)
 df$trhsloc [df$trhsloc == "H"]  <- "P"
+df$trhsloc [df$trhsloc == " "]  <- "Z"
 
 
 
+saveRDS(df, file= "df.rds")
 
