@@ -1,7 +1,4 @@
-if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
-if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
-if(!require("dplyr")) install.packages("dplyr"); library("dplyr") 
-if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") 
+
 
 
 
