@@ -8,6 +8,7 @@ install.packages("foreign")
 install.packages("formatR")
 install.packages("plyr")
 install.packages("ggplot")
+install.packages("gridExtra")
 
 #Load packages
 library(base)
@@ -17,6 +18,7 @@ library(foreign)
 library(formatR)
 library(lubridate)
 library(ggplot2)
+library(gridExtra)
 library(plyr)
 library(sf)
 
@@ -25,7 +27,7 @@ library(sf)
 source("1.0_FirstSteps.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
-age     = df$age
+144age     = df$age
 source("1.3_Cleaning.R", local = FALSE)
 df$age  = age
 
@@ -101,16 +103,31 @@ rm(age2)
 
 df1$ym = format(df1$formated_date, format = "%y/%m")
 df1$ym = as.Date(parse_date_time(df1$ym, orders="%y/%m"))
-casecount         = count(df1, "ym")
-range(casecount$freq)   
+caco   = df1 %>%
+    group_by(ym) %>%
+    dplyr::summarize("freq" = n(), "hr" = mean(hitRate))
+range(caco$freq)   
 
-ggplot(casecount, aes(ym, freq)) + 
-    geom_point() + 
-    stat_smooth(color = "blue", fill = "blue", method = "loess") +  
-    scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
-    coord_cartesian(ylim=c(100, 1000)) +
-    labs(x = "Month", y = "Count", title = "Number of Stops and Frisks per Month") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# Plot case numbers against time
+
+c = ggplot(caco, aes(ym, freq)) + 
+  geom_point(color = "black") + 
+  stat_smooth(color = "dark blue", fill = "dark blue", method = "loess") +  
+  scale_x_date(name = "Month", date_breaks = "3 months", date_labels = "%m/%y") +
+  coord_cartesian(ylim = c(0, 1000)) + 
+  labs(x = "Month", y = "Count", title = "Monthly Case Number over Time") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+h = ggplot(caco, aes(ym, hr)) + 
+  geom_point(color = "black") + 
+  stat_smooth(color = "dark red", fill = "dark red", method = "loess") +  
+  scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
+  coord_cartesian(ylim = c(0, 0.2)) + 
+  labs(x = "Month", y = "Hit Rate", title = "Monthly Hit Rate over Time") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+grid.arrange(c, h, nrow = 2)
+
 
 #=============================
 #2. Total Case Number of Weapon Found
