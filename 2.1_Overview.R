@@ -111,15 +111,15 @@ range(caco$freq)
 # Plot case numbers against time
 
 c = ggplot(caco, aes(ym, freq)) + 
-  geom_point(color = "black") + 
+  geom_point() + 
   stat_smooth(color = "dark blue", fill = "dark blue", method = "loess") +  
-  scale_x_date(name = "Month", date_breaks = "3 months", date_labels = "%m/%y") +
+  scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
   coord_cartesian(ylim = c(0, 1000)) + 
   labs(x = "Month", y = "Count", title = "Monthly Case Number over Time") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 h = ggplot(caco, aes(ym, hr)) + 
-  geom_point(color = "black") + 
+  geom_point() + 
   stat_smooth(color = "dark red", fill = "dark red", method = "loess") +  
   scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
   coord_cartesian(ylim = c(0, 0.2)) + 
@@ -128,14 +128,8 @@ h = ggplot(caco, aes(ym, hr)) +
 
 grid.arrange(c, h, nrow = 2)
 
-
 #=============================
-#2. Total Case Number of Weapon Found
-#=============================
-
-
-#=============================
-#3. Stops - Census Racial Compositions
+#2. Stops - Census Racial Compositions
 #=============================
 
 
