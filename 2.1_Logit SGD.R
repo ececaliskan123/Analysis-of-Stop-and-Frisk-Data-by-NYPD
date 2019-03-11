@@ -9,37 +9,40 @@ df <- readRDS("df.rds")
 
 
 df[, c("xcoord", "ycoord", "perobs", "formated_date", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
+#df$pct <- as.character(df$pct) numericten factore mi gecmeliyim?
 
-
+# Split the data into training and test sets.
 df$year <- year(df$formated_date)
 train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
 df$year <- NULL
 
+# Convert characters into factor variables before regression.
 
+chrIdx <- which(sapply(df, is.character))
+df[, chrIdx] <- lapply(df[, chrIdx], factor)
 
 #logitSGD <- sgd(weaponfound ~ . + .*., data = train, model= "glm", model.control= binomial(link="logit")) 
 #sgd cannot be installed from Archive older versions ERROR: NON-ZERO EXIT STATUS
 
 # Regularized Logit Model 
 
-
-
-# Check out the package vignette
 # Among other information, it includes the formula of the elastic net between lasso and ridge
 #vignette("glmnet_beta")
 
 # The main function seems to be glmnet(), so let's look at it
 ?glmnet
-# Most importantly, we see that the glmnet function doesn't have formula interface
-# So we'll need to build a numeric matrix ourselves
 
+char_vars <- names(sapply(df, is.character)) 
+df[, num_vars] <- sapply(df[, num_vars], FUN = as.factor)
 
-x <- model.matrix(weaponfound~.*. -1, df)
+# Glmnet function doesn't have formula interface, create model.matrix which expand factors into dummies
+
+x <- model.matrix(weaponfound~. -1, df)
 y <- df$weaponfound
 
 lasso <- glmnet(x = x, y = y, family = "binomial", standardize = TRUE,
-                alpha = 1, nlambda = 100)
+                alpha = 1, nlambda = 100) # standardized numbers+ ONLY factors
 # Check out the model
 lasso
 # The vignette also tells us that we can plot the coefficients
