@@ -38,7 +38,7 @@ rm(hmc16, hmc17, check_header, check_type)
 # Overview
 timespan   = c(2013, 2014, 2015, 2016)
 report     = df %>% 
-  select("year", "pct", "sex", "race", "long", "lat") %>% 
+  dplyr::select("year", "pct", "sex", "race", "long", "lat") %>% 
   filter(year %in% timespan)
 str(report)
 
@@ -97,6 +97,7 @@ order = plot %>%
     .$Precinct %>% as.character
     
 ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) + 
+    theme_grey() + 
     geom_bar(position = "dodge", stat = "identity") + 
     scale_x_discrete(limits = order) + 
     xlab("Precinct") +
