@@ -150,13 +150,7 @@ ggplot(rc, aes(y=value, x=race, color=race, fill=race)) +
 #3. Access Reasonable Suspision
 #=============================
 
-source("1.0_FirstSteps.R", local = FALSE) 
-source("1.1_coordinates.R", local = FALSE)
-df      = df[df$year!=min(unique(df$year)),]
-hitRate = readRDS("./Data-rds/hitRate")
-df      = cbind(df, hitRate)
-colnames(df)[which(names(df)=="df[, \"hitRate\"]")] = "hitRate"
-source("1.3_Cleaning.R", local = FALSE)
+source("1.3_Cleaning.R", local = FALSE)  #To normalize age again
 source("2.3_RF.R", local = FALSE)
 
 
