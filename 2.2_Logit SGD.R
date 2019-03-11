@@ -1,7 +1,4 @@
 
-
-
-
 df <- readRDS("df.rds")
 
 
@@ -9,15 +6,19 @@ df[, c("xcoord", "ycoord", "perobs", "formated_date", "timestop", "offunif" , "c
 #df$pct <- as.character(df$pct) numericten factore mi gecmeliyim?
 
 # Split the data into training and test sets.
-df$year <- year(df$formated_date)
+df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
 train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
 df$year <- NULL
+
+# Include Month and Precinct as factors instead of integers
+df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
 
 # Convert characters into factor variables before regression.
 
 chrIdx <- which(sapply(df, is.character))
 df[, chrIdx] <- lapply(df[, chrIdx], factor)
+
 
 #logitSGD <- sgd(weaponfound ~ . + .*., data = train, model= "glm", model.control= binomial(link="logit")) 
 #sgd cannot be installed from Archive older versions ERROR: NON-ZERO EXIT STATUS
@@ -33,17 +34,16 @@ df[, chrIdx] <- lapply(df[, chrIdx], factor)
 char_vars <- names(sapply(df, is.character)) 
 df[, num_vars] <- sapply(df[, num_vars], FUN = as.factor)
 
-# Glmnet function doesn't have formula interface, create model.matrix which expand factors into dummies
+# Glmnet doesn't have formula interface, create model.matrix which expand factors into dummies
 
-x <- model.matrix(weaponfound~. -1, df)
+x <- model.matrix(weaponfound~.*. -1, df)
 y <- df$weaponfound
 
 lasso <- glmnet(x = x, y = y, family = "binomial", standardize = TRUE,
                 alpha = 1, nlambda = 100) # standardized numbers+ ONLY factors
 # Check out the model
 lasso
-# The vignette also tells us that we can plot the coefficients
-# at different values of lambda
+#  Plot the coefficients at different values of lambda
 plot(lasso, xvar = "lambda")
 plot(lasso, xvar = "dev") 
 # Deviance is a goodness-of-fit criterion
