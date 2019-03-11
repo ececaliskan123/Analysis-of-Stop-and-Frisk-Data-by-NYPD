@@ -1,43 +1,12 @@
-setwd("D:/Ling Ki/Uni/Master/HU-MEMS/Sem 3/Statistidal Programming Language/Project/Racial Disparities")
-
 #*************************************
 #Preparation
 #*************************************
 
-#Install packages
-install.packages("arsenal")
-install.packages("dplyr")
-install.packages("devtools")
-install.packages("foreign")
-install.packages("plyr")
-install.packages("tidyverse")
-install.packages("ggmap")
-install.packages("reshape")
-install.packages("RCurl")
-install.packages("sf")
+source("LoadPackages.R")
 
-#Load packages
-library(arsenal)
-library(base)
-library(data.table)
-library(devtools)
-library(dplyr)
-library(foreign)
-library(plyr)
-library(lattice)
-library(tidyverse)
-library(ggmap)
-library(reshape)
-library(RCurl)
-library(sf)
-
-# Source codes
 source("1.0_FirstSteps.R", local = FALSE) 
-source("1.3_Cleaning.R", local = FALSE)
 source("1.1_coordinates.R", local = FALSE)
-
-# Source previous output
-df = readRDS("df.rds")
+source("1.3_Cleaning.R", local = FALSE)
 
 #*************************************
 #Data Processing
@@ -77,20 +46,10 @@ report$pct = as.character(report$pct)       #Variable "PRECINCT" should be a str
 
 unique(report$year)                         #Entries are normal
 unique(report$pct)                          #Entries are normal
-unique(report$race)                         #9 levels of races. Need further cleaning
-#------------
-# Further cleaning race
-
+unique(report$race)                         #5 levels of races. 
 table(report$race)
-#A     B     I     P     Q     U     W     Z       
-#440 21113     0     0  9177     0  1426   859     0   
-
-report$race = factor(report$race)           #Remove factors with 0 observation
-table(report$race)
-#A     B     Q     W     Z 
-#440 21113  9177  1426   859 
-#------------
-
+    #A     B     Q     W     Z 
+    #440 21113  9177  1426   859   
 any(is.na(report$long))                     #FALSE
 any(is.na(report$lat))                      #FALSE
 
@@ -111,7 +70,7 @@ names(pp_cpw)[2]    = "freq_cpw"
 pp_cpw$pct_cpw      = pp_cpw$freq_cpw / sum(pp_cpw$freq_cpw) * 100    #Calculate weights of stops per precinct
 
 pp_hmc              = as.data.frame(table(hmc$PRECINCT))              
-pp_hmc              = plyr::rename(pp_hmc, c("Var1"="pct", "Freq"="freq_hmc"))
+pp_hmc              = rename(pp_hmc, c("Var1"="pct", "Freq"="freq_hmc"))
 pp_hmc$pct_hmc      = pp_hmc$freq_hmc / sum(pp_hmc$freq_hmc) * 100
 
 joint               = merge.data.frame(pp_cpw, pp_hmc, by = intersect(names(pp_cpw), names(pp_hmc)), 
@@ -121,9 +80,9 @@ str(joint)                    #All normal
 
 #Grouped Bar Plot
 dt1   = joint %>% 
-  top_n(n = 20,wt = pct_cpw) %>% 
-  arrange(desc(pct_cpw))
-dt1   = plyr::rename(dt1[,-c(2, 4)], 
+    top_n(n = 20,wt = pct_cpw) %>% 
+    arrange(desc(pct_cpw))
+dt1   = rename(dt1[,-c(2, 4)], 
                      c("pct"="Precinct", 
                        "pct_cpw"="CPW", 
                        "pct_hmc"="Homicide")
@@ -135,7 +94,7 @@ plot  = rename(plot, c("value" = "Percentage"))
 order = plot %>% 
     filter(variable == "Homicide") %>% 
     arrange(desc(Percentage)) %>% 
-  .$Precinct %>% as.character
+    .$Precinct %>% as.character
     
 ggplot(plot, aes(x = Precinct, y = Percentage, fill = variable)) + 
     geom_bar(position = "dodge", stat = "identity") + 
