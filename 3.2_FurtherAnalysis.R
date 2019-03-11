@@ -12,9 +12,13 @@ install.packages("ggplot")
 #Load packages
 library(base)
 library(data.table)
+library(dplyr)
 library(foreign)
 library(formatR)
+library(lubridate)
 library(ggplot2)
+library(plyr)
+library(sf)
 
 
 # Source codes
@@ -72,31 +76,41 @@ fun1 = function(v) {
   
   mu = mean(v)
   sd = sd(v)
-  uf = min((mu + 3*sd), 100)
-  lf = max((mu - 3*sd), 12)
-  v[v > (mu + 3*sd)] = uf
-  v[v < (mu - 3*sd)] = lf
+  v[v > (mu + 3*sd)] = (mu + 3*sd)
+  v[v < (mu - 3*sd)] = (mu - 3*sd)
 
   return(v)
 }
 
 age2    = lapply(df1[c("age")], FUN=fun1)
-df1$age = unlist(age2, use.names = FALSE)
+df1$age = as.integer(unlist(age2, use.names = FALSE))
 
 #-------------------
 
 range(df1$hitRate)    # 0 <= range <= 1, OK
 
+rm(age2)
 
 #*************************************
 #Data Visualization
 #*************************************
 
 #=============================
-#1. Total Number of Stops over Time
+#1. Trends across Time
 #=============================
 
+df1$ym = format(df1$formated_date, format = "%y/%m")
+df1$ym = as.Date(parse_date_time(df1$ym, orders="%y/%m"))
+casecount         = count(df1, "ym")
+range(casecount$freq)   
 
+ggplot(casecount, aes(ym, freq)) + 
+    geom_point() + 
+    stat_smooth(color = "blue", fill = "blue", method = "loess") +  
+    scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
+    coord_cartesian(ylim=c(100, 1000)) +
+    labs(x = "Month", y = "Count", title = "Number of Stops and Frisks per Month") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #=============================
 #2. Total Case Number of Weapon Found
