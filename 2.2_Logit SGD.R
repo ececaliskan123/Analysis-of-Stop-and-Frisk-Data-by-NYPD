@@ -1,6 +1,31 @@
 
 df <- readRDS("df.rds")
 
+## Feature Selection 
+#Fisher Score 
+# Define a function to calculate the Fisher score 
+fisherScore <- function(feature, targetVariable){
+
+  classMeans <- tapply(feature, targetVariable, mean)
+  classStds <- tpply(feature, targetVariable, sd)
+  classDiff <- abs(diff(classMeans))
+  score <- as.numeric(classDiff / sqrt(sum(classStds^2)))
+  return(score)
+}
+
+# Calculate the Fisher score for each numeric variable in the dataset
+
+fisher_scores <- apply(train[,sapply(train, is.numeric)], 
+                       2, fisherScore, train$weaponfound)
+
+# Information Value (based on WoE) 
+#Check the relation between target and categorical variables in the dataset.
+woe.object <- woe(weaponfound ~ ., data = train, zeroadj = 0.5)
+# As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
+woe.object$IV
+
+
+
 
 df[, c("xcoord", "ycoord", "perobs", "formated_date", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
 #df$pct <- as.character(df$pct) numericten factore mi gecmeliyim?
@@ -19,9 +44,9 @@ df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
 chrIdx <- which(sapply(df, is.character))
 df[, chrIdx] <- lapply(df[, chrIdx], factor)
 
-
+# sgd Package for Logit regression wih Stochastic Gradient Descent
 #logitSGD <- sgd(weaponfound ~ . + .*., data = train, model= "glm", model.control= binomial(link="logit")) 
-#sgd cannot be installed from Archive older versions ERROR: NON-ZERO EXIT STATUS
+# sgd package is removed from CRAN repository. Older versions cannot be manually installed from Archive.  ERROR: NON-ZERO EXIT STATUS
 
 # Regularized Logit Model 
 
