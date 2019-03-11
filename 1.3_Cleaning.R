@@ -83,11 +83,13 @@ df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv",
 
 #Standardazing the entries for races. I stands for Indiana and set to  Z (others). U is unknown and also set to Z (others).
 #Both Q and P mean Hispanic.
+
 df$race [df$race == "I" | df$race == " " | df$race == "U"] = "Z"
 df$race [df$race == "P"] = "Q"
 
 # Standardizing entries for location of stop
 # It's assumed that both H and P stand for public housing. The cells were left emty when the location neither housing nor transit.
+
 df$trhsloc [df$trhsloc == "H"]  <- "P"
 
 
