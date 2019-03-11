@@ -91,5 +91,5 @@ df$race [df$race == "P"] = "Q"
 df$trhsloc [df$trhsloc == "H"]  <- "P"
 
 
-
+saveRDS(df, file= "df.rds")
 
