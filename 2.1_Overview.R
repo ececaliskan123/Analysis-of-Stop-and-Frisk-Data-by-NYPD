@@ -27,7 +27,7 @@ library(sf)
 source("1.0_FirstSteps.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
-144age     = df$age
+age     = df$age
 source("1.3_Cleaning.R", local = FALSE)
 df$age  = age
 
@@ -76,15 +76,15 @@ df1$age[is.na(df1$age)] = order(table(df1$age), decreasing = TRUE)[1]  #Replace 
 
 fun1 = function(v) {
   
-  mu = mean(v)
-  sd = sd(v)
+                  mu = mean(v)
+                  sd = sd(v)
   v[v > (mu + 3*sd)] = (mu + 3*sd)
   v[v < (mu - 3*sd)] = (mu - 3*sd)
 
   return(v)
 }
 
-age2    = lapply(df1[c("age")], FUN=fun1)
+age2    = lapply(df1[c("age")], FUN = fun1)
 df1$age = as.integer(unlist(age2, use.names = FALSE))
 
 #-------------------
@@ -102,7 +102,7 @@ rm(age2)
 #=============================
 
 df1$ym = format(df1$formated_date, format = "%y/%m")
-df1$ym = as.Date(parse_date_time(df1$ym, orders="%y/%m"))
+df1$ym = as.Date(parse_date_time(df1$ym, orders = "%y/%m"))
 caco   = df1 %>%
     group_by(ym) %>%
     dplyr::summarize("freq" = n(), "hr" = mean(hitRate))
@@ -111,15 +111,15 @@ range(caco$freq)
 # Plot case numbers against time
 
 c = ggplot(caco, aes(ym, freq)) + 
-  geom_point(color = "black") + 
+  geom_point() + 
   stat_smooth(color = "dark blue", fill = "dark blue", method = "loess") +  
-  scale_x_date(name = "Month", date_breaks = "3 months", date_labels = "%m/%y") +
+  scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
   coord_cartesian(ylim = c(0, 1000)) + 
   labs(x = "Month", y = "Count", title = "Monthly Case Number over Time") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 h = ggplot(caco, aes(ym, hr)) + 
-  geom_point(color = "black") + 
+  geom_point() + 
   stat_smooth(color = "dark red", fill = "dark red", method = "loess") +  
   scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
   coord_cartesian(ylim = c(0, 0.2)) + 
@@ -128,24 +128,18 @@ h = ggplot(caco, aes(ym, hr)) +
 
 grid.arrange(c, h, nrow = 2)
 
-
 #=============================
-#2. Total Case Number of Weapon Found
-#=============================
-
-
-#=============================
-#3. Stops - Census Racial Compositions
+#2. Stops - Census Racial Compositions
 #=============================
 
 
 #=============================
-#4. 
+#3. Access Reasonable Suspision
 #=============================
 
 
 #=============================
-#5. 
+#4. Model Checks
 #=============================
 
 
