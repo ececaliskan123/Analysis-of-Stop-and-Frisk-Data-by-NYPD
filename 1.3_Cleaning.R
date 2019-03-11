@@ -54,6 +54,8 @@ df[,c("weight", "height", "perobs", "age")] <- apply(df[,c("weight", "height", "
 
 summary(df)
 
+Sys.setenv(TZ="Europe/Berlin")
+
 # Extract Month from Date 
 
 df$formated_date <- mdy(df$datestop)
@@ -63,7 +65,6 @@ df$datestop <-NULL
 # Extract Day of Week from Date
 
 df$weekday <- wday(df$formated_date, label=TRUE)
-
 
 # Standardizing  entries for reasons for stops. 
 # It's assumed that police officers leave reason for stop empty or enter 0 when it's a NO. Likewise they enter 1 when it'a YES. 
@@ -89,6 +90,7 @@ df$race [df$race == "P"] = "Q"
 # Standardizing entries for location of stop
 # It's assumed that both H and P stand for public housing. The cells were left emty when the location neither housing nor transit.
 df$trhsloc [df$trhsloc == "H"]  <- "P"
-#df$trhsloc [df$trhsloc == " "] <- 
+
+
 
 
