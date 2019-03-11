@@ -54,7 +54,6 @@ df[,c("weight", "height", "perobs", "age")] <- apply(df[,c("weight", "height", "
 
 summary(df)
 
-Sys.setenv(TZ="Europe/Berlin")
 
 # Extract Month from Date 
 
