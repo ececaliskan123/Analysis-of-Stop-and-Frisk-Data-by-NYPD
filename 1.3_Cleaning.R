@@ -8,16 +8,15 @@ if(!require("anytime")) install.packages("anytime"); library("anytime")
 
 
 # Check and correct for missing values with Most Frequent Valaue(Mode)
-
-colSums(is.na.data.frame(df)) # Missing values in Age are spotted.
+# Missing values in Age are spotted.
+colSums(is.na.data.frame(df)) 
 MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
 df$age [is.na(df$age)] <- MFV 
 
-# There are empty entries in Inside or Outside. Set them to NA and then impute
+# There are empty entries in Inside or Outside. Set them to NA and then impute.
 df$inout [df$inout == " "] <-NA
 MFV2 <- names(sort(table(df$inout), decreasing=TRUE)[1]) 
 df$inout [is.na(df$inout)] <- MFV2 
-
 
 
 # Define a function for standardization
@@ -52,7 +51,7 @@ vector [vector < -3] <- -3
 
 return (vector) }     
 
-df[,c("weight", "height", "perobs")] <- apply(df[,c("weight", "height", "perobs")], MARGIN=2, FUN=outlier.fun)
+df[,c("weight", "height", "perobs", "age")] <- apply(df[,c("weight", "height", "perobs", "age")], MARGIN=2, FUN=outlier.fun)
 
 summary(df)
 
@@ -67,10 +66,10 @@ df$datestop <-NULL
 df$weekday <- wday(df$formated_date, label=TRUE)
 
 
-# Standardizing the entries for reasons for stops. 
-#It's assumed that police officers leave reason for stop empty or enter 0 when it's a NO.Likewise they enter 1 when it'a YES. 
+# Standardizing  entries for reasons for stops. 
+# It's assumed that police officers leave reason for stop empty or enter 0 when it's a NO. Likewise they enter 1 when it'a YES. 
 
-formatting <- function (a) {
+formatting_cs <- function (a) {
   
   a [a == " " | a== 0 ] <- "N"
   a [a == 1] <- "Y"
@@ -79,16 +78,18 @@ formatting <- function (a) {
   
 }
 
-df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other","cs_lkout" , "radio")] <- apply(df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other","cs_lkout","radio")],2, FUN= formatting)
+df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other","cs_lkout" , "radio")] <- apply(df [, c("cs_objcs", "cs_descr" , "cs_casng" , "cs_cloth","cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other","cs_lkout","radio")],2, FUN= formatting_cs)
 
 
 
-#Standardazing the entries for races.
+#Standardazing the entries for races. I stands for Indiana and set to  Z (others). U is unknown and also set to Z (others).
+#Both Q and P mean Hispanic.
 df$race [df$race == "I" | df$race == " " | df$race == "U"] = "Z"
 df$race [df$race == "P"] = "Q"
 
 # Standardizing entries for location of stop
+# It's assumed that both H and P stand for public housing. The cells were left emty when the location neither housing nor transit.
 df$trhsloc [df$trhsloc == "H"]  <- "P"
-df$trhsloc [df$trhsloc == " "] <- "Other"
+#df$trhsloc [df$trhsloc == " "] <- 
 
 
