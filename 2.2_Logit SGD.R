@@ -1,5 +1,14 @@
 
 df <- readRDS("df.rds")
+if(!require("speedglm")) install.packages("speedglm"); library("speedglm")
+
+
+# Split the data into training and test sets.
+df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
+train <- subset(df, year== 2013 | year== 2014)
+test <- subset(df, year== 2015 | year== 2016)
+df$year <- NULL
+
 
 ## Feature Selection 
 #Fisher Score 
@@ -24,17 +33,9 @@ woe.object <- woe(weaponfound ~ ., data = train, zeroadj = 0.5)
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
 woe.object$IV
 
-
-
-
+#Preparing the data before  regression 
+#Remove the variables which are out of scope.
 df[, c("xcoord", "ycoord", "perobs", "formated_date", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
-#df$pct <- as.character(df$pct) numericten factore mi gecmeliyim?
-
-# Split the data into training and test sets.
-df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
-train <- subset(df, year== 2013 | year== 2014)
-test <- subset(df, year== 2015 | year== 2016)
-df$year <- NULL
 
 # Include Month and Precinct as factors instead of integers
 df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
@@ -43,6 +44,8 @@ df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
 
 chrIdx <- which(sapply(df, is.character))
 df[, chrIdx] <- lapply(df[, chrIdx], factor)
+
+glm <- speedglm(weaponfound ~.*., data= train, family = binomial(link="logit"))
 
 # sgd Package for Logit regression wih Stochastic Gradient Descent
 #logitSGD <- sgd(weaponfound ~ . + .*., data = train, model= "glm", model.control= binomial(link="logit")) 
