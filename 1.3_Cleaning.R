@@ -6,6 +6,8 @@
 
 
 
+
+
 # Check and correct for missing values with Most Frequent Valaue(Mode)
 # Missing values in Age are spotted.
 colSums(is.na.data.frame(df)) 
