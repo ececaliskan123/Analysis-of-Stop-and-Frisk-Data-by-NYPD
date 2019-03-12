@@ -4,7 +4,7 @@
 
 source("LoadPackages.R")
 
-# Source codes. 
+# Source codes. Fast track refers to 1.Create Dataset
 source("1.0_FirstSteps.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
@@ -56,6 +56,7 @@ table(df1$sex)
 #F     M     Z       
 #1208 31379   428     0 
 df1      = df1[(df1$sex == "F" | df1$sex == "M"),]
+df1$sex  = factor(df1$sex) 
 
 # Replace NA in age with mode
 summary(df1$age)
@@ -141,3 +142,5 @@ ggplot(rc2, aes(y = value, x = race, fill = variable)) +
   scale_x_discrete(labels = c("Asian", "Black", "Hispanic", "White", "Others")) + 
   labs(x = "Race Group", y = "Composition (%)", 
        title = "Race Composition in Different Contexts", fill = "Context")
+
+saveRDS(df1, file = "To3.2.rds")

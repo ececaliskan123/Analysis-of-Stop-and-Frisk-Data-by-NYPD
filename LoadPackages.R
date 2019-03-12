@@ -8,7 +8,7 @@ if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
 if(!require("anytime")) install.packages("anytime"); library("anytime")
 if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
 if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
-if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") 
+if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") #for fct AUC
 if(!require("data.table")) install.packages("data.table"); library("data.table") 
 if(!require("foreign")) install.packages("foreign"); library("foreign") 
 if(!require("ggmap")) install.packages("ggmap"); library("ggmap")  # get map
@@ -18,6 +18,10 @@ if(!require("devtools")) install.packages("devtools"); library("devtools") # sou
 if(!require("ggplot2")) install.packages("ggplot2"); library("ggplot2")
 if(!require("gridExtra")) install.packages("gridExtra"); library("gridExtra")
 if(!require("cowplot")) install.packages("cowplot"); library("cowplot")
+if(!require("randomForest")) install.packages("randomForest"); library("randomForest")
+if(!require("caret")) install.packages("caret"); library("caret")
+
+
 
 library(base)
 # to be continued
