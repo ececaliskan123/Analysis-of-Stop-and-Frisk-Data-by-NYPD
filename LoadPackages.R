@@ -7,6 +7,7 @@ if(!require("sf")) install.packages("sf"); library("sf") # to deal with spatial 
 if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
 if(!require("anytime")) install.packages("anytime"); library("anytime")
 if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
+if(!require("parglm")) install.packages("parglm"); library("parglm") 
 if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
 if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") 
 if(!require("data.table")) install.packages("data.table"); library("data.table") 
