@@ -3,6 +3,7 @@
 # ******************************
 
 if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
+if(!require("klaR")) install.packages("klaR"); library("klaR")
 if(!require("sf")) install.packages("sf"); library("sf") # to deal with spatial data
 if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
 if(!require("anytime")) install.packages("anytime"); library("anytime")

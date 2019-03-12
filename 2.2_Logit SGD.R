@@ -3,12 +3,16 @@ df <- readRDS("df.rds")
 
 
 ## Feature Selection 
+
+#Remove the variables which are out of scope.
+df[, c("xcoord", "ycoord", "perobs", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
 #Fisher Score 
+
 # Define a function to calculate the Fisher score 
 fisherScore <- function(feature, targetVariable){
 
   classMeans <- tapply(feature, targetVariable, mean)
-  classStds <- tpply(feature, targetVariable, sd)
+  classStds <- tapply(feature, targetVariable, sd)
   classDiff <- abs(diff(classMeans))
   score <- as.numeric(classDiff / sqrt(sum(classStds^2)))
   return(score)
@@ -16,12 +20,14 @@ fisherScore <- function(feature, targetVariable){
 
 # Calculate the Fisher score for each numeric variable in the dataset
 
-fisher_scores <- apply(train[,sapply(train, is.numeric)], 
-                       2, fisherScore, train$weaponfound)
-
+fisher_scores <- apply(df[,sapply(df, is.numeric)], 
+                       2, fisherScore, df$weaponfound)
+fisher_scores
 # Information Value (based on WoE) 
 #Check the relation between target and categorical variables in the dataset.
-woe.object <- woe(weaponfound ~ ., data = train, zeroadj = 0.5)
+woe.object <- woe(as.factor(weaponfound) ~ radio, data = df, zeroadj = 0.5)
+# It is safe to ignore empty cell messages as the above parameter zeroadj is set.
+
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
 woe.object$IV
 
@@ -40,9 +46,7 @@ df[, chrIdx] <- lapply(df[, chrIdx], factor)
 df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
 train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
-
-#Remove the variables which are out of scope.
-df[, c("xcoord", "ycoord", "perobs", "formated_date", "timestop", "offunif" , "crimsusp", "CPW", "year")] <-NULL
+df[, c("year", "formated_date")] <- NULL
 
 ##### First option: Stochastic Gradient Descent to solve for dimensioanlity of 7K covariates.
 
