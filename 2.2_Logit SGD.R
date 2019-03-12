@@ -23,13 +23,6 @@ fisherScore <- function(feature, targetVariable){
 fisher_scores <- apply(df[,sapply(df, is.numeric)], 
                        2, fisherScore, df$weaponfound)
 fisher_scores
-# Information Value (based on WoE) 
-#Check the relation between target and categorical variables in the dataset.
-woe.object <- woe(as.factor(weaponfound) ~ radio, data = df, zeroadj = 0.5)
-# It is safe to ignore empty cell messages as the above parameter zeroadj is set.
-
-# As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
-woe.object$IV
 
 ##Preparing the data before  regression 
 
@@ -37,10 +30,25 @@ woe.object$IV
 
 df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
 
+
+chrIdx <- which(sapply(df, is.character))
+
 # Convert characters into factor variables before regression.
 
 chrIdx <- which(sapply(df, is.character))
 df[, chrIdx] <- lapply(df[, chrIdx], factor)
+
+# Information Value (based on WoE) 
+#Check the relation between target and categorical variables in the dataset.
+weaponfound <- as.factor(df$weaponfound)
+woe.object <- woe( df[, chrIdx],weaponfound, weights = NULL, zeroadj = 0.5, ids = NULL, 
+appont = TRUE)
+
+# It is safe to ignore empty cell messages as the above parameter zeroadj is set.
+
+# As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
+woe.object$IV
+
 
 # Split the data into training and test sets.
 df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
@@ -74,11 +82,13 @@ df[, c("year", "formated_date")] <- NULL
 
 ##### Fifth Option: Speeding up GLM with parallel glms with parglm() using method= LINPACK
 
-parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK",
+glm <- parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK",
    
                                                                     
                                                        nthreads = 2))
 
+coef(parglm)
+plot(parglm)
 # Code works with advantages --> Fast enough and also more stable results than method="FAST"
 
 
