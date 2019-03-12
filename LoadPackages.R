@@ -19,9 +19,10 @@ if(!require("reshape")) install.packages("reshape"); library("reshape") # to mel
 if(!require("devtools")) install.packages("devtools"); library("devtools") # source, install
 if(!require("ggplot2")) install.packages("ggplot2"); library("ggplot2")
 if(!require("gridExtra")) install.packages("gridExtra"); library("gridExtra")
-if(!require("cowplot")) install.packages("cowplot"); library("cowplot")
+if(!require("cowplot")) install.packages("cowplot"); library("cowplot") # multiple plots in one graph
 if(!require("randomForest")) install.packages("randomForest"); library("randomForest")
 if(!require("caret")) install.packages("caret"); library("caret")
+if(!require("scales")) install.packages("scales"); library("scales") # transform plot axes
 
 
 
