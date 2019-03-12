@@ -3,13 +3,8 @@
 #*************************************
 
 source("LoadPackages.R")
-library(dplyr)
-library(cowplot)
-library(base)
 
-
-
-# Source codes
+# Source codes. 
 source("1.0_FirstSteps.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
@@ -40,8 +35,8 @@ rm(age)
 cv      = c("year", "formated_date", "pct", "race", "age", "sex", "weaponfound", "hitRate")
 yr      = c(2013, 2014, 2015, 2016)
 df1     = df %>% 
-    dplyr::select(cv) %>% 
-    filter(year %in% yr) 
+  dplyr::select(cv) %>% 
+  filter(year %in% yr) 
 
 #=============================
 #2. Further Cleaning
@@ -50,40 +45,37 @@ df1     = df %>%
 str(df1)
 df1$pct  = as.character(df1$pct)
 
-#----------------------------------
+# Regroup races
 df1$race = as.factor(df1$race)
 df1$race [df1$race == "I" | df1$race == " " | df1$race == "U"] = "Z"
 df1$race [df1$race == "P"] = "Q"
 df1$race = factor(df1$race)
-#----------------------------------
 
-#----------------------------------
+# Filter unknown sex
 table(df1$sex)
-  #F     M     Z       
-  #1208 31379   428     0 
-df1      = df1[(df1$sex == "F" | df1$sex == "M"),]    #Filter unknown sex
-#----------------------------------
+#F     M     Z       
+#1208 31379   428     0 
+df1      = df1[(df1$sex == "F" | df1$sex == "M"),]
 
-#----------------------------------
-#Remove age outliers 
+# Replace NA in age with mode
 summary(df1$age)
-df1$age[is.na(df1$age)] = order(table(df1$age), decreasing = TRUE)[1]  #Replace NA with mode
+df1$age[is.na(df1$age)] = order(table(df1$age), decreasing = TRUE)[1]
 
-#Substitue outliers with values 3 s.d. from mean via a function
+# Substitue outliers with values 3 s.d. from mean via a function
 fun1 = function(v) {
   
-                  mu = mean(v)
-                  sd = sd(v)
+  mu = mean(v)
+  sd = sd(v)
   v[v > (mu + 3*sd)] = (mu + 3*sd)
   v[v < (mu - 3*sd)] = (mu - 3*sd)
-
+  
   return(v)
 }
 
 age2    = lapply(df1[c("age")], FUN = fun1)
 df1$age = as.integer(unlist(age2, use.names = FALSE))
-#-------------------
 
+# Access if hitRate values are normal
 range(df1$hitRate)    # 0 <= range <= 1, OK
 
 rm(age2)
@@ -99,8 +91,8 @@ rm(age2)
 df1$ym = format(df1$formated_date, format = "%y/%m")
 df1$ym = as.Date(parse_date_time(df1$ym, orders = "%y/%m"))
 caco   = df1 %>%
-    group_by(ym) %>%
-    summarize("freq" = n(), "hr" = mean(hitRate))
+  group_by(ym) %>%
+  summarize("freq" = n(), "hr" = mean(hitRate))
 range(caco$freq)   
 
 # Plot case numbers against time
@@ -149,4 +141,3 @@ ggplot(rc2, aes(y = value, x = race, fill = variable)) +
   scale_x_discrete(labels = c("Asian", "Black", "Hispanic", "White", "Others")) + 
   labs(x = "Race Group", y = "Composition (%)", 
        title = "Race Composition in Different Contexts", fill = "Context")
-
