@@ -4,7 +4,6 @@
 
 if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
 if(!require("klaR")) install.packages("klaR"); library("klaR")
-if(!require("sf")) install.packages("sf"); library("sf") # to deal with spatial data
 if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
 if(!require("anytime")) install.packages("anytime"); library("anytime")
 if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
@@ -22,6 +21,7 @@ if(!require("gridExtra")) install.packages("gridExtra"); library("gridExtra")
 if(!require("cowplot")) install.packages("cowplot"); library("cowplot")
 if(!require("randomForest")) install.packages("randomForest"); library("randomForest")
 if(!require("caret")) install.packages("caret"); library("caret")
+if(!require("sf")) install.packages("sf"); library("sf") # to deal with spatial data
 
 
 
