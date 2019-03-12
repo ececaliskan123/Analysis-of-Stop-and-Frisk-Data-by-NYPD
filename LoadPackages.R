@@ -1,6 +1,7 @@
 # ******************************
 #     LOAD REQUIRED PACKAGES
 # ******************************
+if(!require("jtools")) install.packages("jtools"); library("jtools") 
 if(!require("coefplot")) install.packages("coefplot"); library("coefplot") 
 if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
 if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
