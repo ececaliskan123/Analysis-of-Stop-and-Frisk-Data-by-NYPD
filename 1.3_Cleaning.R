@@ -60,7 +60,7 @@ summary(df)
 
 # Extract Month from Date 
 
-df$formated_date <- mdy(df$datestop)
+df$formated_date <- lubridate::mdy(df$datestop)
 df$month <- month(df$formated_date)
 df$datestop <-NULL
 

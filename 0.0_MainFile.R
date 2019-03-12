@@ -7,7 +7,7 @@ rm(list = ls()) #remove all current objects to clear workspace
 
 source("LoadPackages.R") # load all required packages
 
-#####################################
+y#####################################
 #     1) PreProcessing
 #####################################
 
@@ -28,7 +28,8 @@ source("1.1_coordinates.R")  # -> output: df.rds
                 
 
 # Cleaning
-source("1.3_Cleaning.R")
+source("1.3_Cleaning.R") 
+#It's safe to ignore the  warning message of unknown timezone.
     saveRDS(df,file="df.rds") # I RAN THE CODE UNTIL HERE AND SAVED IT!
     rm(list = ls()[! ls() %in% "df"]) #remove everything except df from the global environment
 
