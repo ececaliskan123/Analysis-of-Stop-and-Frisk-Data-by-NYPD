@@ -1,15 +1,13 @@
 # ******************************
 #     LOAD REQUIRED PACKAGES
 # ******************************
-
+if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
 if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
 if(!require("klaR")) install.packages("klaR"); library("klaR")
-if(!require("sf")) install.packages("sf"); library("sf") # to deal with spatial data
 if(!require("lubridate")) install.packages("lubridate"); library("lubridate")
 if(!require("anytime")) install.packages("anytime"); library("anytime")
 if(!require("glmnet")) install.packages("glmnet"); library("glmnet") 
 if(!require("parglm")) install.packages("parglm"); library("parglm") 
-if(!require("glinternet")) install.packages("glinternet"); library("glinternet") 
 if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") #for fct AUC
 if(!require("data.table")) install.packages("data.table"); library("data.table") 
 if(!require("foreign")) install.packages("foreign"); library("foreign") 
@@ -22,7 +20,11 @@ if(!require("gridExtra")) install.packages("gridExtra"); library("gridExtra")
 if(!require("cowplot")) install.packages("cowplot"); library("cowplot") # multiple plots in one graph
 if(!require("randomForest")) install.packages("randomForest"); library("randomForest")
 if(!require("caret")) install.packages("caret"); library("caret")
+<<<<<<< HEAD
 if(!require("scales")) install.packages("scales"); library("scales") # transform plot axes
+=======
+if(!require("sf")) install.packages("sf"); library("sf") # to deal with spatial data
+>>>>>>> 642bc83f801073694ab3c5337fe727b8fdacf460
 
 
 
