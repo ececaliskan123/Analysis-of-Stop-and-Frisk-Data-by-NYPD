@@ -66,7 +66,7 @@ df$datestop <-NULL
 
 # Extract Day of Week from Date
 
-df$weekday <- wday(df$formated_date, label=TRUE)
+df$weekday <- wday(df$formated_date)
 
 # Standardizing  entries for reasons for stops. 
 # It's assumed that police officers leave reason for stop empty or enter 0 when it's a NO. Likewise they enter 1 when it'a YES. 
