@@ -65,7 +65,7 @@ hmc$PRECINCT = as.character(hmc$PRECINCT)   #Change variable "PRECINCT" to chara
 #=============================
 
 #Preparation
-pp_cpw              = count(report, "pct")                            #Count CPW by precinct
+pp_cpw              = count(report, pct)                              #Count CPW by precinct
 names(pp_cpw)[2]    = "freq_cpw"
 pp_cpw$pct_cpw      = pp_cpw$freq_cpw / sum(pp_cpw$freq_cpw) * 100    #Calculate weights of stops per precinct
 
