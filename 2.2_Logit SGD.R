@@ -94,12 +94,13 @@ plot(parglm)
 
 
 
-#Second Alternative: glinternet
+#### 6th Option: Accelareted Elasticnet with Interaction terms:  glinternet()
 
 # Adds automaticaly interaction terms to LASSO
 
 #Categorical variables must be turned into intergers starting from 0
-# get the numLevels vector containing the number of categories
+
+# Get the numLevels vector containing the number of categories
 X <- train
 i_num <- sapply(train, is.numeric)
 
@@ -112,14 +113,59 @@ X[, !i_num] <- apply(X[, !i_num], 2, function(col) as.integer(as.factor(col)) - 
                      
 y <- train$weaponfound
 
-fit <- glinternet(X, y, numLevels, numCores=2, family= "binomial")
 
-plot(fit)
-   
-i_1Std <- which(cv_fit$lambdaHat1Std == cv_fit$lambda)
-coefs <- coef(cv_fit$glinternetFit)[[i_1Std]]
-                    
-   coefs$interactions
+
+
+
+cv_fit = glinternet.cv(X, y, numLevels,numCores=2, family= "binomial", nFolds=10) 
+
+plot(cv_fit) 
+
+#By eyeballing the curve, the lambda is set to 30.
+
+fit <- glinternet(X, y, numLevels, numCores=2, family= "binomial", lambda = 30 ) 
+
+
+
+# Predictions with test set
+
+X_new <- test
+is_num <- sapply(test, is.numeric)
+
+X_new[, !is_num] <- apply(X_new[, !is_num], 2, factor) %>% as.data.frame()
+numLevels <- X_new %>% sapply(nlevels)
+numLevels[numLevels==0] <- 1
+
+# make the categorical variables take integer values starting from 0
+X_new[, !is_num] <- apply(X_new[, !is_num], 2, function(col) as.integer(as.factor(col)) - 1)
+
+y_new <- test$weaponfound
+
+
+
+## 
+yhat <- predict(fit, X_new, type = "response") 
+
+# Advantages --> Code works very fast with the possibility of facilitating multiple cores.
+
+
+
+######## ---- #######
+i_1Std <- which(fit$lambdaHat1Std == fit$lambda)
+coefs <- coef(fit$glinternetFit)[[i_1Std]]
+
+#
+coefs$mainEffects
+
+idx_num <- (1:length(i_num))[i_num]
+idx_cat <- (1:length(i_num))[!i_num]
+names(numLevels)[idx_cat[coefs$mainEffects$cat]]  
+
+names(numLevels)[idx_num[coefs$mainEffects$cont]]
+coefs$mainEffectsCoef
+#
+
+  coefs$interactions 
                      coefs$interactionsCoef$contcont
                      coefs$interactionsCoef$catcont
                      coefs$interactionsCoef$catcat
