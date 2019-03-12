@@ -49,7 +49,8 @@ rf <- randomForest(weaponfound~ . , # formula
                    data = train, 
                    #mtry = 10, 
                    ntree = 1000,
-                   do.trace = 10 #sets a progress bar)
+                   nodesize = 10,
+                   do.trace = 10) #sets a progress bar)
 
 yhat = predict(rf, type="class")
 auc(test$weaponfound,yhat) #0.66
