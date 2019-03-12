@@ -70,8 +70,8 @@ parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LI
 
 # Glmnet doesn't have formula interface, create model.matrix which expand factors into dummies
 
-x <- model.matrix(weaponfound~.*. -1, df)
-y <- df$weaponfound
+x <- model.matrix(weaponfound~.*. -1, train)
+y <- train$weaponfound
 
 lasso <- glmnet(x = x, y = y, family = "binomial", standardize = TRUE,
                 alpha = 1, nlambda = 100) # standardized numbers+ ONLY factors
@@ -89,15 +89,17 @@ plot(y = lasso$dev.ratio, x = lasso$lambda)
 
 # By eyeballing the curve, let's (arbitrarily!) decide to pick lambda=0.02
 coef(lasso, 0.01)
-pred.lasso <- predict(lasso, newx = x, s = 0.01, type = "response")
+ 
+test.x <-  model.matrix(weaponfound~.*. -1, test)
+pred.lasso <- predict(lasso, newx = test.x, s = 0.01, type = "response")
 
-accuracy.lasso <- Accuracy(pred.lasso, class = loans$BAD)
+accuracy.lasso <- Accuracy(pred.lasso, class = test$weaponfound)
 
 elasticnet <- glmnet(x = x, y = y, family = "binomial", standardize = TRUE,
                 alpha = 0.5, nlambda = 100)
 plot(y = elasticnet$dev.ratio, x = elasticnet$lambda)
 coef(elasticnet, 0.01)
-pred.elasticnet <- predict(elasticnet, newx = x, s = 0.01, type = "response")
+pred.elasticnet <- predict(elasticnet, newx = test.x, s = 0.01, type = "response")
 accuracy.elasticnet <- Accuracy(pred.elasticnet, class = test$weaponfound)
 auc(test$weaponfound,pred.elasticnet)
 
