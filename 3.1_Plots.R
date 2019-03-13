@@ -2,14 +2,16 @@
 #Preparation
 #*************************************
 
+rm(list=ls())
+
 source("LoadPackages.R")
-install.packages("scales")
-library(scales)
 
 source("1.0_FirstSteps.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
 source("1.3_Cleaning.R", local = FALSE)
+
+
 
 #*************************************
 #Data Processing
@@ -115,7 +117,7 @@ rm(hmc, pct.hmc, pct.stop, joint, dt1, plot)
 #=============================
 
 # First, user needs to register at Google Cloud Platform for a free API key
-#Set up API key to access Google Map for download
+# Set up API key to access Google Map for download
 register_google(key = "AIzaSyDke5EmHEXGoXkNvL76Ks4TL1tLtSKYqkQ")   
 
 #------------
@@ -161,13 +163,12 @@ ggmap(NYC) +
                                                 "Hispanic", 
                                                 "White", 
                                                 "Others"), 
-                     values = c("A" = "#CC66FF", 
-                                "B" = "#FF6666",
-                                "Q" = "#00CC33",
-                                "W" = "#0099FF",
-                                "Z" = "#CCCC00"))
+                                     values = c("A" = "#CC66FF", 
+                                                "B" = "#FF6666",
+                                                "Q" = "#00CC33",
+                                                "W" = "#0099FF",
+                                                "Z" = "#CCCC00"))
  
-
 rm(df.map, dt2)
 
 #=============================
@@ -182,7 +183,23 @@ report = report %>%
 ggplot(report, aes(x=hitRate)) + 
   stat_ecdf(aes(color = race)) +
   theme_bw() + 
-  scale_x_continuous(breaks = c(0,001, 0,003, 0,01, 0,03, 0.1, 0,3, 1)) +
-  scale_y_continuous(breaks = c(0,01, 0,03, 0,1, 0,3, 1)) + 
-  labs(x = "Probability of Weapon Recovery", y = "CDF", title = "Distribution of Empirical Hit Rate")
+  coord_trans(x = "sqrt", y = "sqrt") + 
+  scale_color_discrete(name = "Race", labels = c("Black",
+                                                "Hispanic", 
+                                                "White")) + 
+  labs(x = "Probability of Weapon Recovery", y = "CDF", title = "CDF of Empirical Hit Rate")
+
+# Calculating overall and race-specific hit rates
+avg.rate = rbind(aggregate(hitRate ~ race, data = report, mean), mean(report$hitRate))
+avg.rate[,1] = c("Black", "Hispanic", "White", "Overall")
+avg.rate
+    #     race    hitRate
+    #1    Black 0.04096555
+    #2 Hispanic 0.04383513
+    #3    White 0.07230117
+    #4  Overall 0.04320476
+
+
+
+
 

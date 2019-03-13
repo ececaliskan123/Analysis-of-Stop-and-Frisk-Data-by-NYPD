@@ -36,7 +36,7 @@ df$age.raw  = age     #Add cleaned dataset with original age
 rm(age)
 #-----------------------
 var = c("year", "formated_date", "pct", "age", "age.raw", 
-        "race", "sex", "weaponfound", "hitRate", "long", "lat")
+        "race", "sex", "weaponfound", "hitRate")
 yr  = c(2013, 2014, 2015, 2016)
 df1 = df %>% 
   dplyr::select(var) %>% 
