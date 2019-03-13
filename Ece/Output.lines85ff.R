@@ -1,10 +1,6 @@
 #### OUTPUT
-
-glm_model <- parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK",
-                                                                                 +    
-                                                                                   +                                                                     
-                                                                                   +                                                        nthreads = 2))
-> coef(glm_model)
+                                                      
+ # coef(glm_model)
 (Intercept)          year      datestop           pct          sexM          sexZ         raceB         raceI 
 -1.366045e+03  6.071600e-01  7.006867e-08 -4.127907e-03  1.350159e-01 -6.110531e-01 -9.442264e-01 -2.690995e-01 
 raceP         raceQ         raceU         raceW         raceZ        weight           age      trhslocP 

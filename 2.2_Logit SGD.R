@@ -82,7 +82,7 @@ df[, c("year", "formated_date")] <- NULL
 
 ##### Fifth Option: Speeding up GLM with parallel glms with parglm() using method= LINPACK
 
-glm_model <- parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK",
+glm_model <- parglm(weaponfound ~ .*., binomial(), train, control = parglm.control(method = "LINPACK",
    
                                                                     
                                                        nthreads = 2))
@@ -91,7 +91,6 @@ coef(glm_model)
 plot(glm_model)
 glm_model$fitted
 coefplot(glm_model)
-
 yhat_glm <- predict(glm_model, test, type = "response") 
 summ(glm_model)
 summary(glm_model)
