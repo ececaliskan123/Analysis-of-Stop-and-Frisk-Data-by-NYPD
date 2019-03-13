@@ -2,6 +2,8 @@
 #Preparation
 #*************************************
 
+rm(list=ls())
+
 source("LoadPackages.R")
 
 # Source codes. Fast track refers to 1.Create Dataset
@@ -10,7 +12,8 @@ source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
 age     = df$age
 source("1.3_Cleaning.R", local = FALSE)
-df$age  = age
+df$age.raw  = age
+rm(age)
 
 #*************************************
 #Data Processing
@@ -29,13 +32,13 @@ colnames(df)[which(names(df)=="df[, \"hitRate\"]")] = "hitRate"
 age     = df$age
 
 source("1.3_Cleaning.R", local = FALSE)
-df$age  = age     #Replace cleaned dataset with original age
+df$age.raw  = age     #Add cleaned dataset with original age
 rm(age)
 #-----------------------
-var     = c("year", "formated_date", "pct", "race", "age", "sex", 
-            "weaponfound", "hitRate")
-yr      = c(2013, 2014, 2015, 2016)
-df1     = df %>% 
+var = c("year", "formated_date", "pct", "age", "age.raw", 
+        "race", "sex", "weaponfound", "hitRate", "long", "lat")
+yr  = c(2013, 2014, 2015, 2016)
+df1 = df %>% 
   dplyr::select(var) %>% 
   filter(year %in% yr) 
 
@@ -48,8 +51,8 @@ df1$pct  = as.character(df1$pct)
 
 # Regroup races
 df1$race = as.factor(df1$race)
-df1$race [df1$race == "I" | df1$race == " " | df1$race == "U"] = "Z"
-df1$race [df1$race == "P"] = "Q"
+df1$race[df1$race == "I" | df1$race == " " | df1$race == "U"] = "Z"
+df1$race[df1$race == "P"] = "Q"
 df1$race = factor(df1$race)
 
 # Filter unknown sex
@@ -60,8 +63,8 @@ df1      = df1[(df1$sex == "F" | df1$sex == "M"),]
 df1$sex  = factor(df1$sex) 
 
 # Replace NA in age with mode
-summary(df1$age)
-df1$age[is.na(df1$age)] = order(table(df1$age), decreasing = TRUE)[1]
+summary(df1$age.raw)
+df1$age.raw[is.na(df1$age.raw)] = order(table(df1$age.raw), decreasing = TRUE)[1]
 
 # Substitue age outliers with values 3 s.d. from mean via a function
 fun.outlier = function(v) {
@@ -72,13 +75,13 @@ fun.outlier = function(v) {
   
   return(v)
 }
-age2    = lapply(df1[c("age")], FUN = fun.outlier)
-df1$age = as.integer(unlist(age2, use.names = FALSE))
+age2    = lapply(df1[c("age.raw")], FUN = fun.outlier)
+df1$age.raw = as.integer(unlist(age2, use.names = FALSE))
 
 # Access if hitRate values are normal
 range(df1$hitRate)    # 0 <= range <= 1, OK
 
-saveRDS(df1, file = "To3.2.rds")
+saveRDS(df1, file = "3.0.rds")
 rm(age2)
 
 #*************************************
@@ -143,3 +146,4 @@ ggplot(plot, aes(y = value, x = race, fill = variable)) +
   labs(x = "Race Group", y = "Composition (%)", 
        title = "Race Composition in Different Contexts", fill = "Context")
 
+rm(df2, plot)
