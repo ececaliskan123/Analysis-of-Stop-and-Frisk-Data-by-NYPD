@@ -10,18 +10,48 @@ if(!require("caret")) install.packages("caret"); library("caret")
 if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") #for fct AUC
 
 df = readRDS("df.rds")
+
+### CLEANING
+
+# delete columns that ar enot necessary for the modeling
+df[,c("long","lat","CPW","timestop","rowname")] = NULL
+
+# conversions
+df[sapply(df, is.character)] = lapply(df[sapply(df, is.character)],as.factor) #convert all characters into factors
+
+df$weaponfound = as.factor(train$weaponfound) # to make it a classification-problem! (no regression)
+df$pct = as.factor(df$pct) # pct is also not an integer
+df$weekday = as.factor(df$weekday) # weekday also isn't
+df$month = as.factor(df$month) # month also isn't
+
+#last check for missing values
+if(sum(sapply(df,function(x){sum(is.na(x))}) > 0) == 0){
+  print("No missing values - Ready to go!")
+}  else{
+    print("Check missing values!")
+}
+
+# column sex: remove unknown
+  # overview = as.data.frame(table(df$sex))
+df = df[df$sex!="Z",]
+
+# column build: remove unknown (=Z), only 6k rows
+df = df[df$build!="Z",]
+
+
+
 # reduce df for testing purpose (only a fraction of each year)
 set.seed(123)
-percentage     = 0.02
+percentage     = 0.05
 
-reducedTrainYrs  = lapply(c(2009,2010), function(x){
+reducedTrainYrs  = lapply(c(2013,2014), function(x){
   df_yr = df[df$year==x,]
   smp_size = floor(percentage * nrow(df_yr))
   train_ind = sample(seq_len(nrow(df_yr)), size = smp_size) # creates various indeces
   train_yr = df_yr[train_ind,]
   }) 
 
-reducedTestYrs  = lapply(c(2011,2012), function(x){
+reducedTestYrs  = lapply(c(2015,2016), function(x){
   df_yr = df[df$year==x,]
   smp_size = floor(percentage * nrow(df_yr))
   train_ind = sample(seq_len(nrow(df_yr)), size = smp_size) # creates various indeces
@@ -33,17 +63,9 @@ train = do.call(rbind, reducedTrainYrs)
 test = do.call(rbind, reducedTestYrs)
   rm(reducedTestYrs)
 
-# split to train & test
-# train  = subset(df, year==2009 | year==2010) # excluded for now! (too big)
-# test  = subset(df, year==2011 | year==2012)
-
-# train the model....
-test[,c("long","lat","CPW","timestop","crimsusp")] = NULL
-train[,c("long","lat","CPW","timestop","crimsusp")] = NULL
-train[sapply(train, is.character)] = lapply(train[sapply(train, is.character)],as.factor) #convert all characters into factors
-
-train$weaponfound = as.factor(train$weaponfound) # to make it a classification-problem! (no regression)
-test$weaponfound = as.factor(test$weaponfound) # to make it a classification-problem! (no regression)
+  # create interaction-terms!
+  
+bla = as.data.frame(model.matrix(weaponfound ~ .^2, data=train))
 
 rf <- randomForest(weaponfound~ . , # formula
                    data = train, 
