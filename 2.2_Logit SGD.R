@@ -74,7 +74,7 @@ df[, c("year", "formated_date")] <- NULL
 
 ##### Fifth Option: Speeding up GLM with parallel glms with parglm() using method= LINPACK
 
-glm.model <- parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
+glm.model <- parglm(weaponfound ~ .*., binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
 
 coef <- glm.model$coefficients
 saveRDS(coef, "coef.R")
