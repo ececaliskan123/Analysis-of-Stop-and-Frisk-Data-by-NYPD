@@ -21,6 +21,7 @@ rm(age)
 #=============================
 #1. Create Dataset
 #=============================
+source("LoadPackages.R")
 source("1.0_FirstSteps.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 
@@ -37,23 +38,29 @@ rm(age)
 #-----------------------
 var = c("year", "formated_date", "pct", "age", "age.raw", 
         "race", "sex", "weaponfound", "hitRate")
-yr  = c(2013, 2014, 2015, 2016)
-df1 = df %>% 
-  dplyr::select(var) %>% 
-  filter(year %in% yr) 
+
+yr = c("2011","2012","2008","2009")
+
+year.row = df %>% 
+  dplyr::group_by(year) %>%
+  dplyr::summarize(n())
+sum(year.row[1:4, 2])   #334,047
+
+df1 = df[-(1:334047), ] #Remove rows but keep row names
+
+df1 = df1 %>%
+  dplyr::select(var)    #Subset df while keeping row names for analysis in later stage.
+
+rm(year.row)
 
 #=============================
 #2. Further Cleaning
 #=============================
 
 str(df1)
-df1$pct  = as.character(df1$pct)
-
-# Regroup races
-df1$race = as.factor(df1$race)
-df1$race[df1$race == "I" | df1$race == " " | df1$race == "U"] = "Z"
-df1$race[df1$race == "P"] = "Q"
-df1$race = factor(df1$race)
+df1$pct         = as.character(df1$pct)
+df1$race        = as.factor(df1$race)
+df1$weaponfound = as.factor(df1$weaponfound)
 
 # Filter unknown sex
 table(df1$sex)
