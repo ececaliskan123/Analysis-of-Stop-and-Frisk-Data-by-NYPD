@@ -96,29 +96,29 @@ predict.glm <- predict(glm.model, newdata= test, type = 'response')
 
 #Categorical variables must be turned into intergers starting from 0
 # get the numLevels vector containing the number of categories
-X <- train
-i_num <- sapply(train, is.numeric)
+#X <- train
+#i_num <- sapply(train, is.numeric)
 
-X[, !i_num] <- apply(X[, !i_num], 2, factor) %>% as.data.frame()
-numLevels <- X %>% sapply(nlevels)
-numLevels[numLevels==0] <- 1
+#X[, !i_num] <- apply(X[, !i_num], 2, factor) %>% as.data.frame()
+#numLevels <- X %>% sapply(nlevels)
+#numLevels[numLevels==0] <- 1
 
 # make the categorical variables take integer values starting from 0
-X[, !i_num] <- apply(X[, !i_num], 2, function(col) as.integer(as.factor(col)) - 1)
+#X[, !i_num] <- apply(X[, !i_num], 2, function(col) as.integer(as.factor(col)) - 1)
                      
-y <- train$weaponfound
+#y <- train$weaponfound
 
-fit <- glinternet(X, y, numLevels, numCores=2, family= "binomial")
+#fit <- glinternet(X, y, numLevels, numCores=2, family= "binomial")
 
-plot(fit)
+#plot(fit)
    
-i_1Std <- which(cv_fit$lambdaHat1Std == cv_fit$lambda)
-coefs <- coef(cv_fit$glinternetFit)[[i_1Std]]
+#i_1Std <- which(cv_fit$lambdaHat1Std == cv_fit$lambda)
+#coefs <- coef(cv_fit$glinternetFit)[[i_1Std]]
                     
-coefs$interactions
-                     coefs$interactionsCoef$contcont
-                     coefs$interactionsCoef$catcont
-                     coefs$interactionsCoef$catcat
+#coefs$interactions
+#                     coefs$interactionsCoef$contcont
+ #                    coefs$interactionsCoef$catcont
+  #                   coefs$interactionsCoef$catcat
 
 
    
