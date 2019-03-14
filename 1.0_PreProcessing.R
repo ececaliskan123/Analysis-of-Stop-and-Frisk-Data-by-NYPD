@@ -8,28 +8,23 @@
     dfs = lapply(years, function(x){readRDS(file=paste0("./Data-rds/sqf",x,".rds"))})
 
 # ONLY KEEP CPW STOPS (stops in which the suspected crime is "criminal possession of weapon")
-
-    # since the officers fill the standardizes forms manually (and handwritten), not every
-    # row of column "suspected crime" indicates "CPW" cleary. Therefore, we need to define
-    # several string patterns.
-    
-    StrToMatch  = c("CPW","C.P.W","WEAPON","GUN","FIREARM","CRIMINAL POSSESSION WEAPON", "KNIFE",
-                    "C. P. W.", "RIFLE", "CRIMINAL POSSESSION WP") # assign patterns that indicate "CPW", add more!
-    
-    # create function
-    keepCPW = function(x){
-      dfs[[x]]$CPW = ifelse(grepl(paste(StrToMatch,collapse="|"),dfs[[x]]$crimsusp)==TRUE,1,0)
-      dfs[[x]] =  dfs[[x]][dfs[[x]]$CPW==1,]
-    }
-    
-    # apply function to all dataframe in the list
-    dfs = lapply(seq_along(dfs),function(x){keepCPW(x)})
     
     # apply names for better readability
     dfs_names = paste0("df",years)
     names(dfs) = dfs_names
-
-
+    
+    # rename "detailCM" to "detailcm"
+    dfs = lapply(years,function(x){
+      namedf = paste0("df",x)
+      names(dfs[[namedf]])[names(dfs[[namedf]])=="detailCM"] <- "detailcm"
+      dfs[[namedf]]
+    })
+    
+    # the CPW stops are addressed with code "20" in column "detailcm"
+    dfs = lapply(seq_along(years),function(i){
+      dfs[[i]] = dfs[[i]][dfs[[i]]$detailcm=="20",]
+      dfs[[i]]})
+    
 # SUBSET THE DATAFRAME - only keep the relevant columns (as defined in the paper)
     # The paper mentions:
     # sex, race, build, trhsloc (housing or transit), inout (inside or outside), 
@@ -42,14 +37,19 @@
     
     weaponVars = c("pistol", "riflshot", "asltweap", "knifcuti", "machgun", "othrweap")
     
-    covariates = c("year","datestop","timestop","pct","sex","race","ht_feet", 
-                   "ht_inch", "weight", "age", "trhsloc","inout","offunif",
-                   "perobs",grep("cs_",names(dfs[[1]]), value=TRUE), "radio",
-                   "crimsusp", #crimsusp is needed to construct dependent variable
+    covariates = c("year","datestop","timestop","pct","sex","race","build","ht_feet", 
+                   "ht_inch", "weight", "age", "trhsloc","inout","offunif", "radio",
+                   grep("cs_",names(dfs[[1]]), value=TRUE), # reason for stop
+                   grep("ac_",names(dfs[[1]]), value=TRUE), # additional circumstances
                    weaponVars, # weaponVars necessary to construct dependent variable (= weapon 1 or 0)
-                   "xcoord", "ycoord", "CPW")
+                   "perobs", "xcoord", "ycoord")
     
     # check if "covariates" exist in all datasets
+    
+    # apply names for better readability
+    dfs_names = paste0("df",years)
+    names(dfs) = dfs_names
+    
     lapply(seq_along(years), function(x){
       diff_names = sum(covariates %in% names(dfs[[x]])==FALSE)
       if(diff_names==0){
@@ -79,6 +79,11 @@
     df[,c("ht_feet","ht_inch")] = NULL
     
     df$age                      = as.numeric(df$age) # YOU CAN COPY THIS LINE INTO CLEANING!
+    
+# save row-name in a column as a unique identifier (easier to work with)
+    if(!require("tibble")) install.packages("tibble"); library("tibble") 
+    df = tibble::rownames_to_column(df)
+    df$rowname = as.numeric(df$rowname)
 
 
 # SAVE FILE FOR FURTHER PROCESSING (cleaning etc.)
