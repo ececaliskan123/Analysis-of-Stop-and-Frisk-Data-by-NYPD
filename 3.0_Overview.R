@@ -7,7 +7,7 @@ rm(list=ls())
 source("LoadPackages.R")
 
 # Source codes. Fast track refers to 1.Create Dataset
-source("1.0_FirstSteps.R", local = FALSE) 
+source("1.0_PreProcessing.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 source("1.2_hitRate.R", local = FALSE)
 age     = df$age
@@ -22,36 +22,33 @@ rm(age)
 #1. Create Dataset
 #=============================
 source("LoadPackages.R")
-source("1.0_FirstSteps.R", local = FALSE) 
+source("1.0_PreProcessing.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 
-df      = df[df$year!=min(unique(df$year)),]
-hitRate = readRDS("hitRate.rds")
-df      = cbind(df, hitRate)
-colnames(df)[which(names(df)=="df[, \"hitRate\"]")] = "hitRate"                 
+# Use output from 1.2_hitRate.R directly
+df          = df[df$year!=min(unique(df$year)),]    
+hitRateAll  = readRDS("./Data-rds/hitRate.rds")  
+hitRateAll$rowname = as.numeric(hitRateAll$rowname)
+df          = merge(df, hitRateAll, by="rowname")
+df          = df[order(df$year),]
+saveRDS(df, file="df.rds")              
 
-age     = df$age
+age = df$age
 
 source("1.3_Cleaning.R", local = FALSE)
 df$age.raw  = age     #Add cleaned dataset with original age
-rm(age)
+
 #-----------------------
-var = c("year", "formated_date", "pct", "age", "age.raw", 
+var = c("rowname", "year", "formated_date", "pct", "age", "age.raw", 
         "race", "sex", "weaponfound", "hitRate")
 
-yr = c("2011","2012","2008","2009")
+yr = c("2013", "2014","2015","2016")
 
-year.row = df %>% 
-  dplyr::group_by(year) %>%
-  dplyr::summarize(n())
-sum(year.row[1:4, 2])   #334,047
+df1 = df %>%
+  dplyr::select(var) %>%               #Subset df with relevant variables only
+  dplyr::filter(year %in% yr)            #Keep only records from 2013 to 2016
 
-df1 = df[-(1:334047), ] #Remove rows but keep row names
-
-df1 = df1 %>%
-  dplyr::select(var)    #Subset df while keeping row names for analysis in later stage.
-
-rm(year.row)
+rm(age)
 
 #=============================
 #2. Further Cleaning
@@ -82,8 +79,8 @@ fun.outlier = function(v) {
   
   return(v)
 }
-age2    = lapply(df1[c("age.raw")], FUN = fun.outlier)
-df1$age.raw = as.integer(unlist(age2, use.names = FALSE))
+age2    = lapply(df1[c("age.raw")], FUN = fun.outlier)    #Apply fun.outlier to all age.raw. Output is a list.
+df1$age.raw = as.integer(unlist(age2, use.names = FALSE)) #Unlist age2, change data to integers, replace original age.raw data.
 
 # Access if hitRate values are normal
 range(df1$hitRate)    # 0 <= range <= 1, OK
@@ -99,12 +96,16 @@ rm(age2)
 #Trends across Time
 #=============================
 
-df1$ym    = format(df1$formated_date, format = "%y/%m")
+df1$ym    = format(df1$formated_date, format = "%y/%m")         #New column to store dates in form of "YY-MM". Data is character.
 df1$ym    = as.Date(parse_date_time(df1$ym, orders = "%y/%m"))
 case.numb = df1 %>%
   group_by(ym) %>%
-  summarize("freq" = n(), "hr" = mean(hitRate))
-range(case.numb$freq)   
+  summarize("freq" = n(), "hr" = mean(hitRate))           
+
+range(case.numb$freq)
+  #[1]  100 9196
+format(range(case.numb$hr), scientific = FALSE)
+  #[1] "0.03467758" "0.13191693"
 
 # Plot case numbers against time
 trend.case = ggplot(case.numb, aes(ym, freq)) + 
@@ -112,7 +113,7 @@ trend.case = ggplot(case.numb, aes(ym, freq)) +
   geom_point() + 
   stat_smooth(color = "dark blue", fill = "dark blue", method = "loess") +  
   scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
-  coord_cartesian(ylim = c(0, 1000)) + 
+  coord_cartesian(ylim = c(0, 3000)) +      # Limit y-coordinates to exclude months with high counts but low weighted value
   labs(x = "Month", y = "Count", title = "Monthly Case Number over Time") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
