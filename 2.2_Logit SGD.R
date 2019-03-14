@@ -82,13 +82,10 @@ pred <- glm.model$fitted.values
 sort(glm.model$coefficients,decreasing = TRUE) [1:10]
 sort(glm.model$coefficients,decreasing = FALSE) [1:10]
 
-
-"hi" %in% names(glm.model$coefficients)
-
 predict.glm <- predict(glm.model, newdata= test, type = 'response') 
 
 
-# Code works with advantages --> Fast enough and also more stable results than method="FAST"
+# Code works with advantages --> Relatively fast and also more stable results than method="FAST"
 
 
 
