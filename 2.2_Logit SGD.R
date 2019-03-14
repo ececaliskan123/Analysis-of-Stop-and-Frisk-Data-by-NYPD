@@ -74,10 +74,19 @@ df[, c("year", "formated_date")] <- NULL
 
 ##### Fifth Option: Speeding up GLM with parallel glms with parglm() using method= LINPACK
 
-parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK",
-   
-                                                                    
-                                                       nthreads = 2))
+glm.model <- parglm(weaponfound ~ ., binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
+
+coef <- glm.model$coefficients
+pred <- glm.model$fitted.values
+
+sort(glm.model$coefficients,decreasing = TRUE) [1:10]
+sort(glm.model$coefficients,decreasing = FALSE) [1:10]
+
+
+"hi" %in% names(glm.model$coefficients)
+
+predict.glm <- predict(glm.model, newdata= test, type = 'response') 
+
 
 # Code works with advantages --> Fast enough and also more stable results than method="FAST"
 
@@ -109,7 +118,7 @@ plot(fit)
 i_1Std <- which(cv_fit$lambdaHat1Std == cv_fit$lambda)
 coefs <- coef(cv_fit$glinternetFit)[[i_1Std]]
                     
-   coefs$interactions
+coefs$interactions
                      coefs$interactionsCoef$contcont
                      coefs$interactionsCoef$catcont
                      coefs$interactionsCoef$catcat
