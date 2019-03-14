@@ -77,13 +77,13 @@ df[, c("year", "formated_date")] <- NULL
 glm.model <- parglm(weaponfound ~ .*., binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
 
 coef <- glm.model$coefficients
-saveRDS(coef, "coef.R")
+saveRDS(coef, "coef.rds")
 
 sort(glm.model$coefficients,decreasing = TRUE) [1:10]
 sort(glm.model$coefficients,decreasing = FALSE) [1:10]
 
 predict.glm <- predict(glm.model, newdata= test, type = 'response') 
-saveRDS(predict.glm, "predict.R")
+saveRDS(predict.glm, "predict.rds")
 
 # Code works with advantages --> Relatively fast and also more stable results than method="FAST"
 
