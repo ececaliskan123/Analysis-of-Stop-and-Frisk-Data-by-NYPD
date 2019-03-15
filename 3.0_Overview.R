@@ -33,20 +33,19 @@ df          = merge(df, hitRateAll, by="rowname")
 df          = df[order(df$year),]
 saveRDS(df, file="df.rds")              
 
-age = df$age
+age = df$age          #Store the original age separately
 
 source("1.3_Cleaning.R", local = FALSE)
 df$age.raw  = age     #Add cleaned dataset with original age
 
 #-----------------------
 var = c("rowname", "year", "formated_date", "pct", "age", "age.raw", 
-        "race", "sex", "weaponfound", "hitRate")
-
+        "race", "sex", "weaponfound", "hitRate", "long", "lat")
 yr = c("2013", "2014","2015","2016")
 
 df1 = df %>%
   dplyr::select(var) %>%               #Subset df with relevant variables only
-  dplyr::filter(year %in% yr)            #Keep only records from 2013 to 2016
+  dplyr::filter(year %in% yr)          #Keep only records from 2013 to 2016
 
 rm(age)
 
@@ -54,15 +53,25 @@ rm(age)
 #2. Further Cleaning
 #=============================
 
-str(df1)
+str(df1)  #Quick glance at what needs to be processed    
 df1$pct         = as.character(df1$pct)
-df1$race        = as.factor(df1$race)
+
+# Inspect race (9 levels)
+df1$race = as.factor(df1$race)
+table(df1$race)
+#A     B     I     P     Q     U     W     Z       
+#1321 44088   180  4433 13282   382  3370  1012     0
+df1$race [df1$race == "I" | df1$race == " " | df1$race == "U"] = "Z"
+df1$race [df1$race == "P"] = "Q"
+df1$race = factor(df1$race)    #Remove factors with 0 counts
+table(df1$race)  #OK
+
 df1$weaponfound = as.factor(df1$weaponfound)
 
 # Filter unknown sex
 table(df1$sex)
 #F     M     Z       
-#1208 31379   428     0 
+#2486 64904   678     0 
 df1      = df1[(df1$sex == "F" | df1$sex == "M"),]
 df1$sex  = factor(df1$sex) 
 
@@ -79,8 +88,9 @@ fun.outlier = function(v) {
   
   return(v)
 }
-age2    = lapply(df1[c("age.raw")], FUN = fun.outlier)    #Apply fun.outlier to all age.raw. Output is a list.
-df1$age.raw = as.integer(unlist(age2, use.names = FALSE)) #Unlist age2, change data to integers, replace original age.raw data.
+
+age2    = lapply(df1[c("age.raw")], FUN = fun.outlier)
+df1$age.raw = unlist(age2, use.names = FALSE) #Unlist age2, change data to numbers.
 
 # Access if hitRate values are normal
 range(df1$hitRate)    # 0 <= range <= 1, OK
@@ -101,6 +111,7 @@ df1$ym    = as.Date(parse_date_time(df1$ym, orders = "%y/%m"))
 case.numb = df1 %>%
   group_by(ym) %>%
   summarize("freq" = n(), "hr" = mean(hitRate))           
+case.numb
 
 range(case.numb$freq)
   #[1]  100 9196

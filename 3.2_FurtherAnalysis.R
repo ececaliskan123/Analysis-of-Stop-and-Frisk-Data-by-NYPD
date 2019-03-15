@@ -34,7 +34,13 @@ source("1.3_Cleaning.R", local = FALSE)
 df2 = readRDS("3.0.rds")    # Raw data for assessment
 str(df2)
 
-#source("2.3_RF.R", local = FALSE)
+source("2.3_RF.R", local = FALSE)
+#Error message
+#Error in value[[3L]](cond) : 
+#You have a 32-bit version of Java. H2O works best with 64-bit Java.
+#Please download the latest Java SE JDK 8 from the following URL:
+  #http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
 #source("2.2_Logit SGD.R", local = FALSE)
 
 #---------------------------------------
