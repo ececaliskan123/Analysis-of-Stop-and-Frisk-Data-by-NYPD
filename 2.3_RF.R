@@ -17,7 +17,7 @@ df = readRDS("df.rds")
 ### CLEANING
 
 # delete columns that ar enot necessary for the modeling
-df[,c("long","lat","CPW","timestop")] = NULL
+df[,c("long","lat","CPW","timestop")] = NULL  # exclude timestop for now
 
 # conversions
 df[sapply(df, is.character)] = lapply(df[sapply(df, is.character)],as.factor) #convert all characters into factors
@@ -45,7 +45,7 @@ df[] = lapply(df, function(x) if(is.factor(x)) droplevels(x) else x)
 
 # reduce df for testing purpose (only a fraction of each year)
 set.seed(123)
-percentage     = 1
+percentage     = 1   # set one for the whole train/test dataframes
 
 reducedTrainYrs  = lapply(c(2013,2014), function(x){
   df_yr = df[df$year==x,]
@@ -69,7 +69,7 @@ rm(reducedTestYrs)
 # extract wpfound before
 wpfound = as.data.frame(train$weaponfound)
 rowname = as.data.frame(train$rowname)
-train$rowname = NULL # so no interaction terms...
+train$rowname = NULL # so no interaction terms with
 
 # create interaction terms  
 train = as.data.frame(model.matrix(weaponfound ~ .^2, data=train))
