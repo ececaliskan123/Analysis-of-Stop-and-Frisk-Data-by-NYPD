@@ -4,8 +4,12 @@ df <- readRDS("df.rds")
 
 ## Feature Selection 
 
-#Remove the variables which are out of scope.
-df[, c("xcoord", "ycoord", "perobs", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
+
+# Include Month and Precinct as factors instead of integers
+
+df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
+
+
 #Fisher Score 
 
 # Define a function to calculate the Fisher score 
@@ -25,7 +29,11 @@ fisher_scores <- apply(df[,sapply(df, is.numeric)],
 fisher_scores
 # Information Value (based on WoE) 
 #Check the relation between target and categorical variables in the dataset.
-woe.object <- woe(as.factor(weaponfound) ~ radio, data = df, zeroadj = 0.5)
+
+i_char <- sapply(df, is.character)
+X <- df[,i_char]
+
+woe.object <- woe(df[,i_char], as.factor(df$weaponfound),zeroadj = 0.5)
 # It is safe to ignore empty cell messages as the above parameter zeroadj is set.
 
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
@@ -33,9 +41,6 @@ woe.object$IV
 
 ##Preparing the data before  regression 
 
-# Include Month and Precinct as factors instead of integers
-
-df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
 
 # Convert characters into factor variables before regression.
 
@@ -47,6 +52,12 @@ df$year <- year(df$formated_date) #The error message can be ignored; the code wo
 train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
 df[, c("year", "formated_date")] <- NULL
+
+
+#Multicollinierarty Test
+library(mctest)
+i_num <- sapply(df, is.numeric)
+omcdiag(as.matrix(df[,i_num]), df$weaponfound)
 
 ##### First option: Stochastic Gradient Descent to solve for dimensioanlity of 7K covariates.
 

@@ -34,7 +34,7 @@ source("1.3_Cleaning.R")
       
 #It's safe to ignore the  warning message of unknown timezone.
       
-saveRDS(df,file="df.rds") # I RAN THE CODE UNTIL HERE AND SAVED IT!
+saveRDS(df,file="df.rds") 
 rm(list = ls()[! ls() %in% "df"]) #remove everything except df from the global environment
 
 ########################################
