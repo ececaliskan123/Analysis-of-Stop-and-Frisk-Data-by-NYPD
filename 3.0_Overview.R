@@ -122,9 +122,9 @@ format(range(case.numb$hr), scientific = FALSE)
 trend.case = ggplot(case.numb, aes(ym, freq)) + 
   theme_bw() +
   geom_point() + 
-  stat_smooth(color = "dark blue", fill = "dark blue", method = "loess") +  
   scale_x_date(date_breaks = "3 months", date_labels = "%m/%y") +
   coord_cartesian(ylim = c(0, 3000)) +      # Limit y-coordinates to exclude months with high counts but low weighted value
+  stat_smooth(color = "dark blue", fill = "dark blue", method = "loess") + 
   labs(x = "Month", y = "Count", title = "Monthly Case Number over Time") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -138,7 +138,7 @@ trend.rate = ggplot(case.numb, aes(ym, hr)) +
   labs(x = "Month", y = "Hit Rate", title = "Monthly Hit Rate over Time") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-plot_grid(trend.case, trend.rate, ncol = 1)   # Combine two plots with aligned x-axis in one graph
+plot_grid(trend.case, trend.rate, ncol = 1, align = "v")   # Combine two plots with aligned x-axis in one graph
 
 rm(case.numb, trend.case, trend.rate)
 
@@ -148,12 +148,12 @@ rm(case.numb, trend.case, trend.rate)
 
 df2 = df1 %>% 
   group_by(race) %>% 
-  summarize(hit = 100 * mean(hitRate), freq = n()) %>%
+  dplyr::summarize(freq = n()) %>%
   mutate(stops = 100 * freq / sum(freq))
-df2 = df2[, -3]
+df2 = df2[, -2]
 
 # Include census data (https://statisticalatlas.com/place/New-York/New-York/Race-and-Ethnicity)
-df2$census = c(13.7, 24.4, 26.7, 32.3, 1.8+1.1)
+df2$census = c(14.0, 24.3, 29.1, 32.1, 0.1+0.4)
 
 # (tidyverse::gather gives error message, it's performance depends on version of R (R3.4 works, not R3.5))
 plot = data.table::melt(df2, id.vars = "race")  # df2 is a df, and reshape::melt cannot melt multiple measures
@@ -161,7 +161,7 @@ plot = data.table::melt(df2, id.vars = "race")  # df2 is a df, and reshape::melt
 ggplot(plot, aes(y = value, x = race, fill = variable)) +
   geom_bar(position = "dodge", stat="identity") +    
   theme_bw() +                               
-  scale_x_discrete(labels = c("Asian", "Black", "Hispanic", "White", "Others")) + 
+  scale_x_discrete(labels = c("Asian", "Black", "Hispanic", "White", "Others")) +  #Re-label legend text
   labs(x = "Race Group", y = "Composition (%)", 
        title = "Race Composition in Different Contexts", fill = "Context")
 
