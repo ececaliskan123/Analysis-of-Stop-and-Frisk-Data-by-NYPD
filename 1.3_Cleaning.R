@@ -5,14 +5,25 @@
 # **********************************
 
 
+# Correlation between variables
+#corr.test
+i_num <- sapply(df, is.numeric)
+cor(df[,i_num])
+corrplot(cor(df[,i_num]))
 
-
+#Multicollinierarty Test
+library(mctest)
+omcdiag(X,WAGE)
+imcdiag(X,WAGE)
 
 # Check and correct for missing values with Most Frequent Valaue(Mode)
 # Missing values in Age are spotted.
+
 colSums(is.na.data.frame(df)) 
-MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
-df$age [is.na(df$age)] <- MFV 
+
+#MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
+df$age [is.na(df$age)] <- median(df$age)
+
 
 # There are empty entries in Inside or Outside. Set them to NA and then impute.
 df$inout <- as.character(df$inout)
