@@ -4,7 +4,7 @@
 #   check to validate their results from logitic regression.
 # ******************************
 
-# settings for the server!
+# settings for the server
 # .libPaths("H:/RPackages")
 # setwd("H:/nypd-stopfrisk-master")
 
@@ -17,12 +17,12 @@ df = readRDS("df.rds")
 ### CLEANING
 
 # delete columns that ar enot necessary for the modeling
-df[,c("long","lat","CPW","timestop","rowname")] = NULL
+df[,c("long","lat","CPW","timestop")] = NULL
 
 # conversions
 df[sapply(df, is.character)] = lapply(df[sapply(df, is.character)],as.factor) #convert all characters into factors
 
-df$weaponfound = as.factor(train$weaponfound) # to make it a classification-problem! (no regression)
+df$weaponfound = as.factor(df$weaponfound) # to make it a classification-problem! (no regression)
 df$pct = as.factor(df$pct) # pct is also not an integer
 df$weekday = as.factor(df$weekday) # weekday also isn't
 df$month = as.factor(df$month) # month also isn't
@@ -35,17 +35,17 @@ if(sum(sapply(df,function(x){sum(is.na(x))}) > 0) == 0){
 }
 
 # column sex: remove unknown
-# overview = as.data.frame(table(df$sex))
 df = df[df$sex!="Z",]
-
 # column build: remove unknown (=Z), only 6k rows
 df = df[df$build!="Z",]
+# column race: remove unknown (=Z), only 6k rows
 
-
+# remove all unused factor levels - line from stackoverflow -- change it!
+df[] = lapply(df, function(x) if(is.factor(x)) droplevels(x) else x)
 
 # reduce df for testing purpose (only a fraction of each year)
 set.seed(123)
-percentage     = 0.5
+percentage     = 1
 
 reducedTrainYrs  = lapply(c(2013,2014), function(x){
   df_yr = df[df$year==x,]
@@ -68,6 +68,8 @@ rm(reducedTestYrs)
 
 # extract wpfound before
 wpfound = as.data.frame(train$weaponfound)
+rowname = as.data.frame(train$rowname)
+train$rowname = NULL # so no interaction terms...
 
 # create interaction terms  
 train = as.data.frame(model.matrix(weaponfound ~ .^2, data=train))
@@ -76,28 +78,22 @@ names(train) = make.names(names(train),unique = TRUE) # create valid names
 
 # add wpfound again
 train = cbind(train,wpfound)
+train = cbind(train, rowname)
 names(train)[names(train) == "train$weaponfound"] = "weaponfound" 
+names(train)[names(train) == "train$rowname"] = "rowname" 
 train$weaponfound = as.factor(train$weaponfound)
-
-# rf <- randomForest(weaponfound~ . , # formula
-#                    data = train, 
-#                    mtry = 10, 
-#                    ntree = 100,
-#                    nodesize = 10,
-#                    do.trace = 1) #sets a progress bar)
 
 # make test comparable with train
 wpfound = as.data.frame(test$weaponfound)
+rowname = as.data.frame(test$rowname)
+test$rowname = NULL
 test = as.data.frame(model.matrix(weaponfound ~ .^2, data=test))
 names(test) = make.names(names(test),unique = TRUE) # create valid names
 test = cbind(test,wpfound)
+test = cbind(test,rowname)
 names(test)[names(test) == "test$weaponfound"] = "weaponfound" 
+names(test)[names(test) == "test$rowname"] = "rowname" 
 test$weaponfound = as.factor(test$weaponfound)
-
-# # run prediction
-# yhat = predict(rf, newdata= test, type="prob")[,2]
-# auc(test$weaponfound,yhat) #0.66
-
 
 ### try h2o modeling (a machine-learning package making use of multiple CPU cores)
 if(!require("h2o")) install.packages("h2o"); library("h2o") 
@@ -122,6 +118,7 @@ h2o.performance(rforest.model)
 h2o.predict(rforest.model, test.h2o)
 
 yhat.h2o = as.data.frame(h2o.predict(rforest.model, test.h2o))[,3]
+
 auc(test$weaponfound,yhat.h2o)
 
 
