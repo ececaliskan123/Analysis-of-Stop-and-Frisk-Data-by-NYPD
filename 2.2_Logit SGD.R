@@ -4,9 +4,6 @@ df <- readRDS("df.rds")
 
 ## Feature Selection 
 
-#Remove the variables which are out of scope.
-df[, c("xcoord", "ycoord", "perobs", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
-
 
 # Include Month and Precinct as factors instead of integers
 
@@ -34,7 +31,7 @@ fisher_scores
 #Check the relation between target and categorical variables in the dataset.
 
 i_char <- sapply(df, is.character)
-
+X <- df[,i_char]
 
 woe.object <- woe(df[,i_char], as.factor(df$weaponfound),zeroadj = 0.5)
 # It is safe to ignore empty cell messages as the above parameter zeroadj is set.

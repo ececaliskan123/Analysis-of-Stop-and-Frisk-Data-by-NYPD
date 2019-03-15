@@ -6,16 +6,19 @@
 
 
 
+#Remove the variables which are out of scope.
+df[, c("xcoord", "ycoord", "perobs", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
+
 # Check and correct for missing values with Most Frequent Valaue(Mode)
-# Missing values in Age are spotted.
 
 colSums(is.na.data.frame(df)) 
+
+# Missing values in Age are spotted.
 
 #MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
 df$age [is.na(df$age)] <- median(df$age, na.rm= TRUE)
 
 # Correlation between variables
-
 i_num <- sapply(df, is.numeric)
 cor(df[,i_num])
 corrplot: corrplot(cor(df[,i_num]))
