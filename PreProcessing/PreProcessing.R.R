@@ -159,11 +159,11 @@ for(i in years){
 }
 
 # delete the first year (since it was only necessary for hitRate calculation)
-
 firstYear = min(unique(df$year))
 df = df[df$year!=firstYear,]
 
+# transform hitrate to numeric
+df$hitRate = as.numeric(df$hitRate)
+
 # SAVE FILE FOR FURTHER PROCESSING (cleaning etc.)
 saveRDS(df,file="df.rds")
-
-
