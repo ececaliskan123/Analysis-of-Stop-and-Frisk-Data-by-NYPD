@@ -11,10 +11,10 @@ df = readRDS("df.rds")
 #=============================
 
 # Read homicide reports
-hmc16 = readLines("cy2016.csv")                                   # Read in files as text
+hmc16 = readLines("./Replications/cy2016.csv")                                   # Read in files as text
 hmc16 = read.csv(textConnection(hmc16[-c(1:4)]), header=TRUE)     # Dropping the first 4 rows, covert to dataset
 
-hmc17 = readLines("cy2017.csv")  
+hmc17 = readLines("./Replications/cy2017.csv")  
 hmc17 = read.csv(textConnection(hmc17[-c(1:4)] ), header=TRUE)
 
 # Create integrated homicide report
@@ -122,7 +122,6 @@ ggmap(NYC) +
 #------------
 # Compare with the period 2011-2012
 #------------
-
 # To randomly select 10,000 samples for plot (as stated in paper)
 set.seed(12345)
 
