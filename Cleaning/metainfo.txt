@@ -1,6 +1,6 @@
-Name of Quantlet: MUST NOT BE EMPTY!
+Name of Quantlet: SPL_NameofQuantlet (change it)
 
-Published in: MUST NOT BE EMPTY!
+Published in: Statistical programming languages - Student Project on "The Stop-And-Frisk Policy by the New York City Policy Department"
 
 Description: MUST NOT BE EMPTY!
 
