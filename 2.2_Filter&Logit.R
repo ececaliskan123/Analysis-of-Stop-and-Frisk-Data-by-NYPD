@@ -3,17 +3,20 @@
 #
 # This file addresses filter methods and fits logistic regression.
 # **********************************
-
+################ From Cleaning for backup
 df <- readRDS("df.rds")
+df$formated_date <- lubridate::mdy(df$datestop)
+df$month <- lubridate:: month(df$formated_date)
+df$weekday <- lubridate:: wday(df$formated_date)
+################
 
 ##### Feature Selection with Filter Methods
-
 # Include Month, Precinct and weekday as factors instead of integers
 
 df[, c("pct", "month", "weekday")] <- apply(df[, c("pct", "month", "weekday")], 2, FUN = as.character)
 
 
-#Fisher Score 
+###Fisher Score 
 
 # Define a function to calculate the Fisher score 
 fisherScore <- function(feature, targetVariable){
@@ -34,7 +37,7 @@ fisher_scores
 chrIdx <- which(sapply(df, is.character))
 df[, chrIdx] <- lapply(df[, chrIdx], factor)
 
-# Information Value (based on WoE) 
+#### Information Value (based on WoE) 
 #Check the relation between target and categorical variables in the dataset.
 
 i_factor <- sapply(df, is.factor)
@@ -93,11 +96,13 @@ mctest::omcdiag(as.matrix(df[, i_num]), df$weaponfound)
 #glm.model <- parglm(weaponfound ~ .*.-height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
 # Doesn't work, session gets aborted after long hours. Therefore, interaction terms were dropped.
 
-glm.model <- parglm(weaponfound ~. -height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 4))
+glm.model <- parglm(weaponfound ~. -height-perobs, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 4))
 
 #Or just the regular glm()
 
 glm.modell <- glm(formula = weaponfound ~ . - height-perobs, family = binomial(link = "logit"), data = train)
+
+## Height and perobs are dropped based on results of Filter Methods.
 
 coef <- glm.modell$coefficients
 
@@ -106,39 +111,37 @@ sort(glm.modell$coefficients,decreasing = FALSE) [1:10]
 
 predict.glm <- predict(glm.modell, newdata= test, type = 'response') 
 
+### AUC Score
 auc(test$weaponfound,predict.glm)
 
-# Code works with advantages --> Relatively fast and also more stable results than method="FAST"
+# Code works real fast without interaction terms. 
 
-##### Sixth Option: glinternet
 
-# Adds automaticaly interaction terms to LASSO
-
-#Categorical variables must be turned into intergers starting from 0
-# get the numLevels vector containing the number of categories
-X <- train
-i_num <- sapply(train, is.numeric)
-
-X[, !i_num] <- apply(X[, !i_num], 2, factor) %>% as.data.frame()
-numLevels <- X %>% sapply(nlevels)
-numLevels[numLevels==0] <- 1
-
-# make the categorical variables take integer values starting from 0
-X[, !i_num] <- apply(X[, !i_num], 2, function(col) as.integer(as.factor(col)) - 1)
-                     
+##### Sixth Option: Reducing dimensionality with Lasso Regularization 
+x <- model.matrix(weaponfound~.-height-perobs -1, train)
 y <- train$weaponfound
 
-fit <- glinternet(X, y, numLevels, numCores=4, family= "binomial")
+lasso <- glmnet(x = x, y = y, family = "binomial", standardize = TRUE, alpha = 1, nlambda = 100) 
 
-plot(fit)
-   
-i_1Std <- which(cv_fit$lambdaHat1Std == cv_fit$lambda)
-coefs <- coef(cv_fit$glinternetFit)[[i_1Std]]
-                    
-coefs$interactions
-coefs$interactionsCoef$contcont
-coefs$interactionsCoef$catcont
-coefs$interactionsCoef$catcat
+plot(lasso)
+plot(lasso, xvar = "lambda")
+plot(lasso, xvar = "dev") 
+# Deviance is a goodness-of-fit criterion
+
+# How to choose the best lambda value? 
+# The deviance or pseudo-R^2
+str(lasso)
+plot(y = lasso$dev.ratio, x = lasso$lambda)
+
+newx <- model.matrix(weaponfound~.-height-perobs -1, test)
+newy <- test$weaponfound
+
+# By eyeballing the curve, lambda=0.01
+coef(lasso, 0.01)
+pred.lasso <- predict(lasso, newx=newx, s = 0.01, type = "response")
+
+auc(newy,pred.lasso)
 
 
-   
+
+
