@@ -49,17 +49,9 @@ rm(hmc16, hmc17)
 #=============================
 
 # Overview
-yr     = c(2013, 2014, 2015, 2016)
-report = df %>% 
-  dplyr::select("year", "pct", "sex", "race", "long", "lat", "hitRate") %>% 
-  dplyr::filter(year %in% yr)
+report = readRDS("3.0.rds")
 str(report)
 
-report$pct = as.character(report$pct)       #Variable "PRECINCT" should be a string instead of integer
-
-unique(report$year)                         #Entries are normal
-unique(report$pct)                          #Entries are normal
-unique(report$race)                         #5 levels of races 
 any(is.na(report$long))                     #FALSE. No NAs
 any(is.na(report$lat))                      #FALSE.
 
@@ -134,22 +126,23 @@ NYC = get_map(location = c(lon = median(dt2$long), lat = median(dt2$lat)),
               source = "google", maptype = "terrain", zoom = 11)
 
 ggmap(NYC) + 
-    geom_point(data = dt2, mapping = aes(x = long, y = lat, color = race), size = 0.5) + 
-    ggtitle("Distribution of CPW Stops Between 2014 and 2016") + 
-    scale_color_manual(name  = "Race", labels = c("Asian", 
+  geom_point(data = dt2, mapping = aes(x = long, y = lat, color = race), size = 0.5) + 
+  ggtitle("Distribution of CPW Stops Between 2014 and 2016") + 
+  scale_color_manual(name  = "Race", labels = c("Asian",           # Set legend text and label
                                                   "Black", 
                                                   "Hispanic", 
                                                   "White", 
                                                   "Others"), 
-                                       values = c("A" = "#CC66FF", 
-                                                  "B" = "#FF6666",
-                                                  "Q" = "#00CC33",
-                                                  "W" = "#0099FF",
-                                                  "Z" = "#CCCC00"))
+                                     values = c("A" = "#CC66FF",   #Set color for each race for easier comparison
+                                                "B" = "#FF6666",
+                                                "Q" = "#00CC33",
+                                                "W" = "#0099FF",
+                                                "Z" = "#CCCC00"))
                        
 #------------
 # Compare with the period 2011-2012
 #------------
+
 # To randomly select 10,000 samples for plot (as stated in paper)
 set.seed(12345)
 
@@ -158,6 +151,9 @@ df.map = df %>%
   filter(year == "2011" | year == "2012") %>%
   sample_n(size = 10000)
 
+
+df.map$race [df.map$race == "I" | df.map$race == " " | df.map$race == "U"] = "Z"
+df.map$race [df.map$race == "P"] = "Q"
 df.map$race = factor(df.map$race)
 
 ggmap(NYC) + 
@@ -172,7 +168,8 @@ ggmap(NYC) +
                                                 "B" = "#FF6666",
                                                 "Q" = "#00CC33",
                                                 "W" = "#0099FF",
-                                                "Z" = "#CCCC00"))
+                                                "Z" = "#CCCC00")
+                     )
  
 rm(df.map, dt2)
 
@@ -186,11 +183,9 @@ report = report %>%
   filter(race == "B" | race == "W"| race == "Q")
 
 ggplot(report, aes(x=hitRate)) + 
-  stat_ecdf(aes(color = race)) +
+  stat_ecdf(aes(color = race)) +          # Plot empirical CDF of hit rates
   theme_bw() + 
-  
-  # Coordinates in sqaure-root scale to zoom early stage of weapon recovery probability
-  coord_trans(x = "sqrt", y = "sqrt") +      
+  coord_trans(x = "sqrt", y = "sqrt") +   # Adjust axes to square-root scales
   scale_color_discrete(name = "Race", labels = c("Black",
                                                 "Hispanic", 
                                                 "White")) + 
@@ -203,10 +198,10 @@ avg.rate = rbind(aggregate(hitRate ~ race, data = report, mean), mean(report$hit
 avg.rate[,1] = c("Black", "Hispanic", "White", "Overall")
 avg.rate
     #      race    hitRate
-    #1    Black 0.04476465
-    #2 Hispanic 0.05064923
-    #3    White 0.08589065
-    #4  Overall 0.04849073
+    #1    Black 0.04478557
+    #2 Hispanic 0.05070640
+    #3    White 0.08602560
+    #4  Overall 0.04852442
 
 # Use quantiles to find differences
 race.p = report %>%
@@ -219,9 +214,9 @@ quantile(race.p$hitRate[race.p$race == "B"], c(0.5, 0.75, 0.9))
     #0.03212716 0.05102079 0.07579140 
 quantile(race.p$hitRate[race.p$race == "Q"], c(0.5, 0.75, 0.9)) 
     #50%        75%        90% 
-    #0.03162746 0.05747656 0.09638025  
+    #0.03166323 0.05755572 0.09640710   
 quantile(race.p$hitRate[race.p$race == "W"], c(0.5, 0.75, 0.9)) 
     #50%        75%        90% 
-    #0.05425556 0.09359589 0.22235586 
+    #0.05425556 0.09392988 0.22264817  
 
 rm(avg.rate, race.p)
