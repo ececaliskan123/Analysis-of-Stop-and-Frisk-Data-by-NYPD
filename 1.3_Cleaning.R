@@ -1,7 +1,7 @@
 # **********************************
-#       CLEANING
+#       DATA CLEANING
 #
-# This file addresses missing values and treats outliers.
+# This file addresses missing values, treats outliers and standardizes entries.
 # **********************************
 
 #Remove the variables which are out of scope.

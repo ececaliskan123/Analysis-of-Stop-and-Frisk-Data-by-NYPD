@@ -1,7 +1,12 @@
+# **********************************
+#       FEATURE SELECTION AND LOGISTIC REGRESSION
+#
+# This file addresses filter methods and fits logistic regression.
+# **********************************
 
 df <- readRDS("df.rds")
 
-## Feature Selection 
+##### Feature Selection with Filter Methods
 
 # Include Month, Precinct and weekday as factors instead of integers
 
