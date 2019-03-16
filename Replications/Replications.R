@@ -3,6 +3,8 @@
 #*************************************
 
 rm(list=ls())
+source("LoadPackages.R")
+df = readRDS("df.rds")
 
 #=============================
 #1. Read in Homicide Reports

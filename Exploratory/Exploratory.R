@@ -5,20 +5,10 @@
 rm(list=ls())
 
 source("LoadPackages.R")
-source("PreProcessing.R", local = FALSE) 
-
-# Use output from 1.2_hitRate.R directly
-df          = df[df$year!=min(unique(df$year)),]    
-hitRateAll  = readRDS("./Data-rds/hitRate.rds")  
-hitRateAll$rowname = as.numeric(hitRateAll$rowname)
-df          = merge(df, hitRateAll, by="rowname")
-df          = df[order(df$year),]
-saveRDS(df, file="df.rds")
-
-df  = readRDS("./PreProcessing/Data-rds/df.rds")
+df  = readRDS("df.rds")
 age = df$age          #Store the original age separately
 
-source("1.3_Cleaning.R", local = FALSE)
+source("./Cleaning/Cleaning.R", local = FALSE)
 
 df$age.raw  = age     #Add cleaned dataset with original age
 
