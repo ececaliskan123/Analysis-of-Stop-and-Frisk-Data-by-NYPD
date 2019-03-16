@@ -9,5 +9,4 @@ Keywords: Filter methods, feature selection, logistic regression, lasso
 Author: Ece Caliskan
 
 
-Submitted:  SHOULD NOT BE EMPTY
 
