@@ -7,7 +7,7 @@
 
 
 #Remove the variables which are out of scope.
-df[, c("xcoord", "ycoord", "perobs", "timestop", "crimsusp", "CPW")] <-NULL
+df[, c("xcoord", "ycoord", "timestop", "crimsusp", "CPW")] <-NULL
 
 # Check and correct for missing values with Most Frequent Valaue(Mode)
 
@@ -46,16 +46,16 @@ standardize <- function(x){
   
   return(result)   }
 
-df[,c("weight", "height", "age")] <- apply(df[,c("weight", "height","age")], MARGIN=2, FUN=standardize)
+df[,c("weight", "height","perobs", "age")] <- apply(df[,c("weight", "height","age", "perobs")], MARGIN=2, FUN=standardize)
 
 
 # Outlier check
 
-boxplot(df [, c("weight", "height", "age") ] , main = "Multiple boxplots for outlier check",
+boxplot(df [, c("weight", "height", "age", "perobs" )] , main = "Multiple boxplots for outlier check",
  ylim= c(-3,8),      
  horizontal=TRUE,
  boxwex=0.8, 
- boxfill= c("red", "green" , "blue") 
+ boxfill= c("red", "green" , "blue" , "orange") 
 
 )
 
@@ -69,7 +69,7 @@ vector [vector < -3] <- -3
 
 return (vector) }     
 
-df[,c("weight", "height", "age")] <- apply(df[,c("weight", "height",  "age")], MARGIN=2, FUN=outlier.fun)
+df[,c("weight", "height", "age", "perobs")] <- apply(df[,c("weight", "height",  "age", "perobs")], MARGIN=2, FUN=outlier.fun)
 
 summary(df)
 
@@ -77,12 +77,14 @@ summary(df)
 # Extract Month from Date 
 
 df$formated_date <- lubridate::mdy(df$datestop)
-df$month <- month(df$formated_date)
+
+df$month <- lubridate:: month(df$formated_date)
+
 df$datestop <-NULL
 
 # Extract Day of Week from Date
 
-df$weekday <- wday(df$formated_date)
+df$weekday <- lubridate:: wday(df$formated_date)
 
 # Standardizing  entries for reasons for stops. 
 # It's assumed that police officers leave reason for stop empty or enter 0 when it's a NO. Likewise they enter 1 when it'a YES. 
