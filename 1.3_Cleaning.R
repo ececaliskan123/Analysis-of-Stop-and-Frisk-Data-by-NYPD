@@ -5,24 +5,28 @@
 # **********************************
 
 
-# Correlation between variables
-#corr.test
-i_num <- sapply(df, is.numeric)
-cor(df[,i_num])
-corrplot(cor(df[,i_num]))
 
-#Multicollinierarty Test
-library(mctest)
-omcdiag(X,WAGE)
-imcdiag(X,WAGE)
+#Remove the variables which are out of scope.
+df[, c("xcoord", "ycoord", "perobs", "timestop", "crimsusp", "CPW")] <-NULL
 
 # Check and correct for missing values with Most Frequent Valaue(Mode)
-# Missing values in Age are spotted.
 
 colSums(is.na.data.frame(df)) 
 
+# Missing values in Age are spotted.
+
 #MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
-df$age [is.na(df$age)] <- median(df$age)
+df$age [is.na(df$age)] <- median(df$age, na.rm= TRUE)
+
+
+# This is just in case if NA's were introduced during coercion in "1.0_Preprocessing.R"
+df <- df[!apply(is.na(df), 1, any),]
+
+
+# Correlation between variables
+i_num <- sapply(df, is.numeric)
+cor(df[,i_num])
+corrplot: corrplot(cor(df[,i_num]))
 
 
 # There are empty entries in Inside or Outside. Set them to NA and then impute.
@@ -47,11 +51,12 @@ df[,c("weight", "height", "age")] <- apply(df[,c("weight", "height","age")], MAR
 
 # Outlier check
 
-boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxplots for outlier check",
+boxplot(df [, c("weight", "height", "age") ] , main = "Multiple boxplots for outlier check",
  ylim= c(-3,8),      
  horizontal=TRUE,
  boxwex=0.8, 
- boxfill= c("red", "green" , "blue", "orange")
+ boxfill= c("red", "green" , "blue") 
+
 )
 
 
@@ -109,5 +114,7 @@ df$trhsloc [df$trhsloc == " "]  <- "Z"
 
 
 
-saveRDS(df, file= "df.rds")
 
+
+  saveRDS(df, file= "df.rds")
+        

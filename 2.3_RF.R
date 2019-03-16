@@ -1,25 +1,37 @@
-# ******************************
-#   This code snippet duplicates the analyses of section 3.1-3.4 with the 
-#   random forest classifier. Goel et al (2016) use the same method as a robustness
-#   check to validate their results from logitic regression.
-# ******************************
+# *******************************************************
+#   This code snippet applies the random forest classifier to predict the hit rate. 
+#   It has been used by Goel et al (2016) as a robustness check and yielded largely
+#   similar results. 
+#
+#   Outline of this snippet:
+#       - Data Preparation (Conversions and interaction terms)
+#       - Setup of the H2o environment
+#       - Random Forest Model
+#       - Post Validation
+# *******************************************************
 
-# settings for the server
+# settings for the server -- exclude at the very end!
 # .libPaths("H:/RPackages")
 # setwd("H:/nypd-stopfrisk-master")
 
-if(!require("randomForest")) install.packages("randomForest"); library("randomForest")
-if(!require("caret")) install.packages("caret"); library("caret")
-if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") #for fct AUC
 
+    ################################
+    ###### DATA PREPARATION ########
+    ################################
+
+# This subsection applies necessary conversions, creates interaction terms and splits
+# the data into test and train.
+    
+# load the dataset
 df = readRDS("df.rds")
 
-### CLEANING
+# delete irrelevant columns, which are not part of the modeling process
+df[,c("long","lat","datestop","timestop")] = NULL  
+      # long / lat, because spatial information is captured by local hitRate
+      # datestop & timestop, because timely information is captured by weekday & month
 
-# delete columns that ar enot necessary for the modeling
-df[,c("long","lat","CPW","timestop")] = NULL
+# conversion of certain columns
 
-# conversions
 df[sapply(df, is.character)] = lapply(df[sapply(df, is.character)],as.factor) #convert all characters into factors
 
 df$weaponfound = as.factor(df$weaponfound) # to make it a classification-problem! (no regression)
@@ -45,7 +57,7 @@ df[] = lapply(df, function(x) if(is.factor(x)) droplevels(x) else x)
 
 # reduce df for testing purpose (only a fraction of each year)
 set.seed(123)
-percentage     = 1
+percentage     = 1   # set one for the whole train/test dataframes
 
 reducedTrainYrs  = lapply(c(2013,2014), function(x){
   df_yr = df[df$year==x,]
@@ -69,7 +81,7 @@ rm(reducedTestYrs)
 # extract wpfound before
 wpfound = as.data.frame(train$weaponfound)
 rowname = as.data.frame(train$rowname)
-train$rowname = NULL # so no interaction terms...
+train$rowname = NULL # so no interaction terms with
 
 # create interaction terms  
 train = as.data.frame(model.matrix(weaponfound ~ .^2, data=train))
@@ -119,6 +131,8 @@ h2o.predict(rforest.model, test.h2o)
 
 yhat.h2o = as.data.frame(h2o.predict(rforest.model, test.h2o))[,3]
 
+
+if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") 
 auc(test$weaponfound,yhat.h2o)
 
 
