@@ -5,9 +5,10 @@ df <- readRDS("df.rds")
 ## Feature Selection 
 
 
-# Include Month and Precinct as factors instead of integers
+# Include Month, Precinct and weekday as factors instead of integers
 
-df[, c("pct", "month")] <- apply(df[, c("pct", "month")], 2, FUN = as.character)
+df[, c("pct", "month", "weekday")] <- apply(df[, c("pct", "month", "weekday")], 2, FUN = as.character)
+
 
 
 #Fisher Score 
@@ -38,12 +39,13 @@ df[, chrIdx] <- lapply(df[, chrIdx], factor)
 
 i_factor <- sapply(df, is.factor)
 X <- df[,i_factor]
+
 df$weaponfound<- as.factor(df$weaponfound)
 woe.object <- woe(X, df$weaponfound,zeroadj = 0.5)
 # It is safe to ignore empty cell messages as the above parameter zeroadj is set.
 
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
-woe.object$IV
+saveRDS(woe.object$IV, "IV.rds")
 
 ##Preparing the data before  regression 
 
