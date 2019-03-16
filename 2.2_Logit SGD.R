@@ -20,13 +20,11 @@ fisherScore <- function(feature, targetVariable){
   classStds <- tapply(feature, targetVariable, sd)
   classDiff <- abs(diff(classMeans))
   score <- as.numeric(classDiff / sqrt(sum(classStds^2)))
-  return(score)
-}
+  return(score)}
 
 # Calculate the Fisher score for each numeric variable in the dataset
 
-fisher_scores <- apply(df[,sapply(df, is.numeric)], 
-                       2, fisherScore, df$weaponfound)
+fisher_scores <- apply(df[,sapply(df, is.numeric)],   2, fisherScore, df$weaponfound)
 fisher_scores
 
 # Convert characters into factor variables before regression.

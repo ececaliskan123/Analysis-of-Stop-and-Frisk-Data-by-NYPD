@@ -69,7 +69,7 @@ vector [vector < -3] <- -3
 
 return (vector) }     
 
-df[,c("weight", "height", "perobs", "age")] <- apply(df[,c("weight", "height", "perobs", "age")], MARGIN=2, FUN=outlier.fun)
+df[,c("weight", "height", "age")] <- apply(df[,c("weight", "height",  "age")], MARGIN=2, FUN=outlier.fun)
 
 summary(df)
 
