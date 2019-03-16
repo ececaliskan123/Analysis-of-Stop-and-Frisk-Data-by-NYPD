@@ -4,6 +4,7 @@
 # This file addresses missing values, treats outliers and standardizes entries.
 # **********************************
 
+df <- readRDS("df.rds")
 #Remove the variables which are out of scope.
 df[, c("xcoord", "ycoord", "timestop", "crimsusp", "CPW")] <-NULL
 
