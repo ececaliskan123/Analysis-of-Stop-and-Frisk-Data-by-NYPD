@@ -40,8 +40,8 @@ df[, chrIdx] <- lapply(df[, chrIdx], factor)
 i_factor <- sapply(df, is.factor)
 X <- df[,i_factor]
 
-df$weaponfound<- as.factor(df$weaponfound)
-woe.object <- woe(X, df$weaponfound,zeroadj = 0.5)
+y<- as.factor(df$weaponfound)
+woe.object <- woe(X, y,zeroadj = 0.5)
 # It is safe to ignore empty cell messages as the above parameter zeroadj is set.
 
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
