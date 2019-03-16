@@ -5,23 +5,6 @@
 rm(list=ls())
 
 source("LoadPackages.R")
-
-# Source codes. Fast track refers to 1.Create Dataset
-source("1.0_PreProcessing.R", local = FALSE) 
-source("1.1_coordinates.R", local = FALSE)
-source("1.2_hitRate.R", local = FALSE)
-age     = df$age
-source("1.3_Cleaning.R", local = FALSE)
-df$age.raw  = age
-rm(age)
-
-#*************************************
-#Data Processing
-#*************************************
-#=============================
-#1. Create Dataset
-#=============================
-source("LoadPackages.R")
 source("1.0_PreProcessing.R", local = FALSE) 
 source("1.1_coordinates.R", local = FALSE)
 
@@ -36,12 +19,19 @@ saveRDS(df, file="df.rds")
 age = df$age          #Store the original age separately
 
 source("1.3_Cleaning.R", local = FALSE)
+
 df$age.raw  = age     #Add cleaned dataset with original age
 
-#-----------------------
+#*************************************
+#Data Processing
+#*************************************
+#=============================
+#1. Create Dataset
+#=============================
+
 var = c("rowname", "year", "formated_date", "pct", "age", "age.raw", 
         "race", "sex", "weaponfound", "hitRate", "long", "lat")
-yr = c("2013", "2014","2015","2016")
+yr  = c("2013", "2014","2015","2016")
 
 df1 = df %>%
   dplyr::select(var) %>%               #Subset df with relevant variables only
@@ -56,14 +46,8 @@ rm(age)
 str(df1)  #Quick glance at what needs to be processed    
 df1$pct         = as.character(df1$pct)
 
-# Inspect race (9 levels)
+# Inspect race 
 df1$race = as.factor(df1$race)
-table(df1$race)
-#A     B     I     P     Q     U     W     Z       
-#1321 44088   180  4433 13282   382  3370  1012     0
-df1$race [df1$race == "I" | df1$race == " " | df1$race == "U"] = "Z"
-df1$race [df1$race == "P"] = "Q"
-df1$race = factor(df1$race)    #Remove factors with 0 counts
 table(df1$race)  #OK
 
 df1$weaponfound = as.factor(df1$weaponfound)

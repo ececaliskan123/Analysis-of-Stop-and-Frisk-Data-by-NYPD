@@ -128,7 +128,7 @@ X[, !i_num] <- apply(X[, !i_num], 2, function(col) as.integer(as.factor(col)) - 
                      
 y <- train$weaponfound
 
-fit <- glinternet(X, y, numLevels, numCores=2, family= "binomial")
+fit <- glinternet(X, y, numLevels, numCores=4, family= "binomial")
 
 plot(fit)
    
