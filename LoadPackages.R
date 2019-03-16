@@ -3,6 +3,7 @@
 # ******************************
 if(!require("mctest")) install.packages("mctest"); library("mctest") 
 if(!require("corrplot")) install.packages("corrplot"); library("corrplot") 
+if(!require("woe")) install.packages("woe"); library("woe") 
 
 if(!require("jtools")) install.packages("jtools"); library("jtools") 
 if(!require("coefplot")) install.packages("coefplot"); library("coefplot") 
