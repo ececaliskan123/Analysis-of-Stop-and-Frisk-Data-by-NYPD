@@ -8,13 +8,12 @@ source("LoadPackages.R")
 df2 = readRDS("3.0.rds")  
 df2 = df2[which(df2$year == '2015' | df2$year == '2016'), ]
 
-rf  = readRDS("./PreProcessing/Data-rds/yhat.RF.rds")
-lg  = readRDS("./PreProcessing/Data-rds/yhat.glm.rds")
+rf  = readRDS("./Data-rds/yhat.RF.rds")
+lg  = readRDS("./Data-rds/yhat.glm.rds")
 
 #*************************************
 #Model Assessments
 #*************************************
-
 
 # Include estimated hit rates from both models
 df2$rf_hit = rf$yhat[match(df2$rowname, rf$rowname)]  # Paste hit rate from rf ("yhat") to df2 when "rowname" matches
@@ -39,7 +38,7 @@ df2$age.group = ifelse(df2$age.raw < 18, "0 to 18",
                                      )
                               )
                        )
-#############################################################################
+
 age  = df2 %>% 
   dplyr::group_by(age.group) %>% 
   dplyr::select(age.group, hitRate, rf_hit, lg_hit) %>%
