@@ -2,20 +2,8 @@ Name of Quantlet: SPL_NameofQuantlet (change it)
 
 Published in: Statistical programming languages - Student Project on "The Stop-And-Frisk Policy by the New York City Policy Department"
 
-Description: MUST NOT BE EMPTY!
+Description: Prepares a combined dataset from annual raw files. The Quantlet transforms the coordinates into human-readable format and calculates the local hit rate.
 
-Keywords: MUST NOT BE EMPTY!
+Keywords: preparation, local-intensities, coordinates, longitude, latitude, merging 
 
-Author: MUST NOT BE EMPTY
-
-See also: for listing related, similar Quantlets or Github code from your point of view - delete if not used
-
-Submitted:  SHOULD NOT BE EMPTY
-
-Datafile: for your data sets - delete if not used
-
-Input: (optional - delete if not used)
-
-Output:  (optional - delete if not used)
-
-Example: for your plots, graphs, results etc. - delete if not used
+Author: Malte Hessenius
