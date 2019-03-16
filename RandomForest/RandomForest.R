@@ -1,17 +1,23 @@
-# ******************************************************* This code
-# snippet applies the random forest classifier to predict the hit rate.
+# ******************************************************* 
+# This code snippet applies the random forest classifier to predict the hit rate.
 # It has been used by Goel et al (2016) as a robustness check and
-# yielded largely similar results.  Outline of this snippet: - Data
-# Preparation (Conversions and interaction terms) - Setup of the H2o
-# environment - Random Forest Model - Post Validation
+# yielded largely similar results.  
+# Outline of this snippet: - 1) Data Preparation (Conversions and interaction terms) 
+#  2) - Setup of the H2o environment and application of RF
 # *******************************************************
 
-### set parameters
-perc = 1
-model.choice = "extend"
+###### set parameters
 
-# settings for the server -- exclude at the very end!
-# .libPaths('H:/RPackages') setwd('H:/nypd-stopfrisk-master')
+# For testing purposes, the following two parameters can be adjusted. If one 
+# wants to run the RF classifier only on a subset of the dataset, one should
+# state a number betwen 0 and 1. 
+# The model.choice refers to the time-period. State "extend" if you want
+# to train the model on the 2013/14 observations and test it on 2015/16.
+# State "replicate" to run it on the time-frame used by Goel et al (2016),
+# which is 2009/10 (training) and 2011/12 (test).
+
+perc         = 1        # default = 1
+model.choice = "extend" # defauilt = "extend", other option "replicate"
 
 
 ######## DATA PREPARATION ########
@@ -24,24 +30,25 @@ df = readRDS("df.rds")
 
 # delete irrelevant columns, which are not part of the modeling process
 df[, c("long", "lat", "formated_date")] = NULL
-# long / lat, because spatial information is captured by local hitRate
-# datestop & timestop, because timely information is captured by
-# weekday & month
+  # long / lat, because spatial information is captured by local hitRate
+  # datestop & timestop, because timely information is captured by
+  # weekday & month
 
 # treat inconsistencies in all columns 'additional circumstances'
-# (starting with 'ac_')
+# which are those starting with 'ac_' ; the function "reduceFactors" reduces
+# the factor levels to 2 (i.e., Y/N)
 
 add_circ = grep("ac_", names(df), value = TRUE)  # extract all respective columns 
 
 reduceFactors = function(x) {
   # function adapted from the cleaning-quantlet
-  x[x == " " | x == 0] = "N"
+  x[x == " " | x == 0] = "N"    # replace "" and 0 with "N"
   x[x == 1] = "Y"
   
   return(x)
 }
 
-df[, c(add_circ)] = apply(df[, c(add_circ)], 2, FUN = reduceFactors)
+df[, c(add_circ)] = apply(df[, c(add_circ)], 2, FUN = reduceFactors) 
 
 # convert all characters into factors
 df[sapply(df, is.character)] = lapply(df[sapply(df, is.character)], as.factor)
@@ -79,15 +86,17 @@ df[] = lapply(df, function(x) {
   }
 })
 
+####### SPLIT DATA
+
 # split the dataset into test & train the following lines are a
 # work-around if one wants to apply the random forest on a fraction of
 # the observations (for testing purpose only)
 
-set.seed(123)  # guarantees comparability in the row-sampling
+set.seed(123)       # guarantees comparability in the row-sampling
 percentage = perc  # set one for the whole train/test dataframes 
 
-# replicate or extend analysis
-choice = model.choice  # 'replicate' or 'extend' defined above
+# insert the model.choice stated at the beginning
+choice = model.choice 
 
 if (choice == "replicate") {
   # replicate considers the same years as Goel et al (2016)
@@ -101,12 +110,14 @@ if (choice == "replicate") {
   stop("Indicate clearly whether the model should replicate or extend the analysis!")
 }
 
+# subset the data according to specified timeframe
 train = df[df$year == c(years_train), ]
 train$year = droplevels(train$year)
 test = df[df$year == c(years_test), ]
 test$year = droplevels(test$year)
 
 # reduce number of observations (if percentage != 1)
+# which reduces the calculation time for testing purposes
 
 reduceData = function(train_or_test) {
   smp_size = floor(percentage * nrow(train_or_test))
@@ -118,12 +129,15 @@ reduceData = function(train_or_test) {
 train = reduceData(train_or_test = train)
 test = reduceData(train_or_test = test)
 
-# extract wpfound before
+
+##### CREATE INTERACTION TERMS
+
+# extract dependent variable before, since it will be lost
+# in the "model.matrix" command
 train.wpfound = as.data.frame(train[, c("rowname", "weaponfound")])
 test.wpfound = as.data.frame(test[, c("rowname", "weaponfound")])
 
-# create interaction terms
-
+# define variables that should be interacted
 vars_intact = paste(names(train[, !names(train) %in% c("rowname", "weaponfound")]), 
                     collapse = " + ")
 
@@ -140,35 +154,35 @@ test = merge(test, test.wpfound, by = "rowname")
 names(train) = make.names(names(train), unique = TRUE)  # create valid names
 names(test) = make.names(names(train), unique = TRUE)  # create valid names
 
-### try h2o modeling (a machine-learning package making use of multiple
-### CPU cores)
-if (!require("h2o")) install.packages("h2o")
-library("h2o")
+#### SETUP H2o environment
+# which is a special environment to speed up machine learning approaches,
+# while making use of several CPU cores
 
-localH2O <- h2o.init(nthreads = -1, max_mem_size = NULL)
+if (!require("h2o")) install.packages("h2o")
+
+localH2O <- h2o.init(nthreads = -1,     # -1, the default, assigns all available cores
+                     max_mem_size = NULL)
 
 h2o.init()  # check status
 
-# convert to h2o
+# convert to h2o instance
 train.h2o <- as.h2o(train)
 test.h2o <- as.h2o(test)
 
-# create interactions - already done factorVars =
-# names(train[sapply(train,is.factor)]) train.h2o.intact =
-# h2o.interaction(train.h2o,pairwise = TRUE, factor= factorVars,
-# max_factors = 77, min_occurrence = 1)
+#### RUN RANDOM FOREST MODEL
 
-system.time(rforest.model <- h2o.randomForest(y = "weaponfound", training_frame = train.h2o, 
-                                              ntrees = 1000, min_rows = 10, seed = 1122))
+system.time(rforest.model <- h2o.randomForest(y = "weaponfound", 
+                                              training_frame = train.h2o, 
+                                              ntrees = 1000, 
+                                              min_rows = 10, 
+                                              seed = 1122))
 
-# h2o.performance(rforest.model)
-
-# predict on test-data h2o.predict(rforest.model, test.h2o)
+# predict on test-data and save the output for the model assessment
 
 test.h2o$yhat = h2o.predict(rforest.model, test.h2o)[, 3]
 yhat.rf = as.data.frame(test.h2o[, c("rowname", "yhat")])
 saveRDS(yhat.rf, file = "yhat.RF.rds")
 
-# auc for evaluation
+# Yield the AUC score
 if (!require("ModelMetrics")) install.packages("ModelMetrics")
-auc(test$weaponfound, yhat.rf$yhat)
+auc(test$weaponfound, yhat.rf$yhat)   # the auc function compares fitted with actual values
