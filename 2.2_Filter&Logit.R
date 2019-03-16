@@ -53,7 +53,8 @@ saveRDS(woe.object$IV, "IV.rds")
 df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
 train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
-df[, c("year", "formated_date")] <- NULL
+train[, c("year", "formated_date")] <- NULL
+test[, c("year", "formated_date")] <- NULL
 
 
 #Multicollinierarty Test
