@@ -1,21 +1,13 @@
-Name of Quantlet: SPL_NameofQuantlet (change it)
+Name of Quantlet: SPL_RandomForest
 
 Published in: Statistical programming languages - Student Project on "The Stop-And-Frisk Policy by the New York City Policy Department"
 
-Description: MUST NOT BE EMPTY!
+Description: Applies the random forest classifier on the dependent variable. 
+At first, it prepares the dataset, applies necessary conversions. Secondly, it creates all pair-wise interaction terms.
+Lastly, it applied the random forest algorithm via the H2o-package,
 
-Keywords: MUST NOT BE EMPTY!
+Keywords: random-forest, machine-learning, decision-tree, classifier, h2o-package, artificial-intelligence, interaction-terms
 
-Author: MUST NOT BE EMPTY
+Author: Malte Hessenius
 
-See also: for listing related, similar Quantlets or Github code from your point of view - delete if not used
 
-Submitted:  SHOULD NOT BE EMPTY
-
-Datafile: for your data sets - delete if not used
-
-Input: (optional - delete if not used)
-
-Output:  (optional - delete if not used)
-
-Example: for your plots, graphs, results etc. - delete if not used
