@@ -45,7 +45,6 @@ woe.object <- woe(X, y,zeroadj = 0.5)
 # It is safe to ignore empty cell messages as the above parameter zeroadj is set.
 
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
-saveRDS(woe.object$IV, "IV.rds")
 
 ##Preparing the data before  regression 
 
@@ -98,7 +97,7 @@ glm.model <- parglm(weaponfound ~. -height, binomial(), train, control = parglm.
 
 #Or just the regular glm()
 
-glm.modell <- glm(formula = weaponfound ~ . - height, family = binomial(link = "logit"), data = train)
+glm.modell <- glm(formula = weaponfound ~ . - height-perobs, family = binomial(link = "logit"), data = train)
 
 coef <- glm.modell$coefficients
 
