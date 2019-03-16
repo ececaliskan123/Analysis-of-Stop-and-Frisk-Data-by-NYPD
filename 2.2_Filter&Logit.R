@@ -50,7 +50,7 @@ saveRDS(woe.object$IV, "IV.rds")
 ##Preparing the data before  regression 
 
 # Split the data into training and test sets.
-df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.
+df$year <- year(df$formated_date) 
 train <- subset(df, year== 2013 | year== 2014)
 test <- subset(df, year== 2015 | year== 2016)
 train[, c("year", "formated_date")] <- NULL
@@ -94,7 +94,8 @@ mctest::omcdiag(as.matrix(df[, i_num]), df$weaponfound)
 #glm.model <- parglm(weaponfound ~ .*.-height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
 # Doesn't work, session gets aborted after long hours. Therefore, interaction terms were dropped.
 
-glm.model <- parglm(weaponfound ~. -height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 2))
+glm.model <- parglm(weaponfound ~. -height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 4))
+glm.modell <- glm(formula = weaponfound ~ . - height, family = binomial(link = "logit"), data = train)
 
 coef <- glm.model$coefficients
 
