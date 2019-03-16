@@ -29,7 +29,7 @@ rm(hmc16, hmc17)
 #=============================
 
 # Overview
-report = readRDS("3.0.rds")
+report = readRDS("./Replications/3.0.rds")
 str(report)
 
 any(is.na(report$long))                     #FALSE. No NAs

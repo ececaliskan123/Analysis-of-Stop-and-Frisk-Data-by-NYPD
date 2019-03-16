@@ -6,6 +6,7 @@ rm(list=ls())
 
 source("LoadPackages.R")
 df          = readRDS("df.rds")
+age.numeric = readRDS("./Exploratory/age.numeric.rds")
 df$age.raw  = age.numeric$age     #Add cleaned dataset with original age
 
 #*************************************
