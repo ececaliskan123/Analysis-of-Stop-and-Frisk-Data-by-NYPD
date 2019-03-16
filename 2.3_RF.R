@@ -69,15 +69,13 @@ df = df[df$sex != "Z" & df$build != "Z", ]
 # factor levels reduces the dimensionality after creating the
 # interaction-terms
 
-# remove all unused factor levels - line from stackoverflow -- change
-# it!
+# remove all unused factor levels
 
-df[] = lapply(df, function(x) {
-  # use lapply to address every variable
-  if (is.factor(x)) {
-    droplevels(x)  # droplevels removes empty factors
+df[] = lapply(df, function(x) { 
+  if (is.factor(x)) {       # in this setting, lapply iterates through every column
+    droplevels(x)           # droplevels removes empty factors
   } else {
-    x
+    x                       # return x, if column != factor
   }
 })
 
@@ -173,4 +171,4 @@ saveRDS(yhat.rf, file = "yhat.RF.rds")
 
 # auc for evaluation
 if (!require("ModelMetrics")) install.packages("ModelMetrics")
-auc(test$weaponfound, yhat.h2o)
+auc(test$weaponfound, yhat.rf$yhat)
