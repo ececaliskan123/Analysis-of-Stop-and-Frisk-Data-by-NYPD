@@ -2,7 +2,7 @@ Name of Quantlet: SPL_Cleaning
 
 Published in: Statistical programming languages - Student Project on "The Stop-And-Frisk Policy by the New York City Policy Department"
 
-Description: Data cleaning
+Description: Data cleaning. This file imputes missing values, removes outliers, standardizes entries and extracts new features for the model.
 
 Keywords: Missing values, outliers, standardization of entries
 
@@ -10,10 +10,6 @@ Author:Ece Caliskan
 
 Submitted:  SHOULD NOT BE EMPTY
 
-Datafile: for your data sets - delete if not used
 
-Input: (optional - delete if not used)
 
-Output:  (optional - delete if not used)
 
-Example: for your plots, graphs, results etc. - delete if not used
