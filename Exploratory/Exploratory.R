@@ -5,12 +5,8 @@
 rm(list=ls())
 
 source("LoadPackages.R")
-df  = readRDS("df.rds")
-age = df$age          #Store the original age separately
-
-source("./Cleaning/Cleaning.R", local = FALSE)
-
-df$age.raw  = age     #Add cleaned dataset with original age
+df          = readRDS("df.rds")
+df$age.raw  = age.numeric$age     #Add cleaned dataset with original age
 
 #*************************************
 #Data Processing
@@ -26,8 +22,6 @@ yr  = c("2013", "2014","2015","2016")
 df1 = df %>%
   dplyr::select(var) %>%               #Subset df with relevant variables only
   dplyr::filter(year %in% yr)          #Keep only records from 2013 to 2016
-
-rm(age)
 
 #=============================
 #2. Further Cleaning
