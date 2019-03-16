@@ -4,25 +4,30 @@ This project addresses the Stop-And-Frisk Policy by the New York City Policy Dep
 # Code Structure
 0) MainFile.R - loads and combines all relevant code snippets in respective order
 
-  1) PreProcessing
-      - [x] FirstSteps.R - merging of annual datasets, subsetting with relevant covariates, creation of dependent variable
-        - [x] Contains **StrToMatch** - to include more CPW cases that are not marked as CPW
-      - [x] hitRate.R - to be done: calculation of the complex hitRate-Formula
-      - [x] coordinates.R - transformation of coordinates to longitude/latitude
-      - [x] Cleaning.R - standardization, outliers, missing values
+  1) PreProcessing (Malte)
+      - Merging of annual datasets, subsetting with relevant covariates, creation of dependent variable
+      - Calculation of the complex hitRate-Formula
+      - Transformation of coordinates to longitude/latitude
+  
+  2) Cleaning (Ece)
+      - Standardization, outliers, missing values
+  
+  3) Exploratory Analysis (LingKi)
+      - Trends over time, calculate racial compositions
       
-  2) ANALYSIS  #**_TO BE DONE_**
-      - Logit.R
-        - First run Logit, then fit Logit with SDG due to large size of variables. 
-        - **_p.372 Footnote 6_ package Vowpal Wabbit was used, all parameters adopted their default values in the package.**
-      - RF.R 
-   
-  3) PostProcessing
-      - [x] Plots.R - Plots that replicate those on the paper:
+  4) Replications (LingKi
+      - Replications of graphical analysis to re-examine the conclusions in the paper
         - (1) Grouped barplot to compare the distributions of homicide and stop cases per precinct
         - (2) GPS plots of stops on NYC google map to compare with racial distribution in the city
-      - [ ] FurtherAnalysis.R
-        - (1) Overview of situation.
-        - (2) Plots of models 
-        - (3) Model check - Hit Rate vs Age / Sex / Race _(Not sure if possible)_ p.389 Appendix A (b). *Or use AUC*
-        
+        - (3) Examining cumulative density functions of each race
+      
+  5) Logit(Ece)
+      - Apply logistic model (without interaction terms) to the data
+      
+  6) Random Forest (Malte)
+      - Replication and extension of analysis via Random Forest model
+  
+  3) Model Assessment (LingKi)
+      - Model check
+        - Different hit rates vs Age / Sex / Race
+        - Empirical hit rates to predicted values
