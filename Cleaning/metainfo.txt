@@ -4,11 +4,10 @@ Published in: Statistical programming languages - Student Project on "The Stop-A
 
 Description: Data cleaning. This file imputes missing values, removes outliers, standardizes entries and extracts new features for the model.
 
-Keywords: Missing values, outliers, standardization of entries
+Keywords: Missing values, outliers, standardization, correcting entries, cleaning
 
 Author:Ece Caliskan
 
-Submitted:  SHOULD NOT BE EMPTY
 
 
 

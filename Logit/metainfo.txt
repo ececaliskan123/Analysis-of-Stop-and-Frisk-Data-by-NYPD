@@ -4,10 +4,9 @@ Published in: Statistical programming languages - Student Project on "The Stop-A
 
 Description: Filter methods for feature selection and logistic regression. This file applies filter methods, builds logistic regression and lasso models.
 
-Keywords: Filter methods, feature selection, logistic regression, lasso
+Keywords: Filter methods, feature selection, logistic regression, lasso, regularization
 
 Author: Ece Caliskan
 
 
-Submitted:  SHOULD NOT BE EMPTY
 
