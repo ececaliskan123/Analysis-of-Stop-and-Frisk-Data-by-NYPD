@@ -41,7 +41,7 @@ rm(list = ls()[! ls() %in% "df"]) #remove everything except df from the global e
 #     2) ANALYSIS
 ########################################
 
-source("2.2_Logit SGD.R") 
+source("2.2_Filter&Logit.R") 
 
 ##########################################
 #     3) PostProcessing
