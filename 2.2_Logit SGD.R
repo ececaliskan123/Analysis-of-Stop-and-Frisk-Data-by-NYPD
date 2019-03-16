@@ -27,13 +27,19 @@ fisherScore <- function(feature, targetVariable){
 fisher_scores <- apply(df[,sapply(df, is.numeric)], 
                        2, fisherScore, df$weaponfound)
 fisher_scores
+
+# Convert characters into factor variables before regression.
+
+chrIdx <- which(sapply(df, is.character))
+df[, chrIdx] <- lapply(df[, chrIdx], factor)
+
 # Information Value (based on WoE) 
 #Check the relation between target and categorical variables in the dataset.
 
-i_char <- sapply(df, is.character)
-X <- df[,i_char]
-
-woe.object <- woe(df[,i_char], as.factor(df$weaponfound),zeroadj = 0.5)
+i_factor <- sapply(df, is.factor)
+X <- df[,i_factor]
+df$weaponfound<- as.factor(df$weaponfound)
+woe.object <- woe(X, df$weaponfound,zeroadj = 0.5)
 # It is safe to ignore empty cell messages as the above parameter zeroadj is set.
 
 # As a rule of thumb: <0.02: not predictive, 0.02-0.1: weak, 0.1-0.3: medium, >0.3: strong
@@ -42,10 +48,7 @@ woe.object$IV
 ##Preparing the data before  regression 
 
 
-# Convert characters into factor variables before regression.
 
-chrIdx <- which(sapply(df, is.character))
-df[, chrIdx] <- lapply(df[, chrIdx], factor)
 
 # Split the data into training and test sets.
 df$year <- year(df$formated_date) #The error message can be ignored; the code works fine.

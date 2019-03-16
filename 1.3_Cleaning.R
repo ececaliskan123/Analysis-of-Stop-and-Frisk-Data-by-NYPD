@@ -7,7 +7,7 @@
 
 
 #Remove the variables which are out of scope.
-df[, c("xcoord", "ycoord", "perobs", "timestop", "offunif" , "crimsusp", "CPW")] <-NULL
+df[, c("xcoord", "ycoord", "perobs", "timestop", "crimsusp", "CPW")] <-NULL
 
 # Check and correct for missing values with Most Frequent Valaue(Mode)
 
@@ -17,6 +17,11 @@ colSums(is.na.data.frame(df))
 
 #MFV <- as.numeric(names(sort(table(df$age), decreasing=TRUE)[1])) 
 df$age [is.na(df$age)] <- median(df$age, na.rm= TRUE)
+
+
+# This is just in case if NA's were introduced during coercion in "1.0_Preprocessing.R"
+df <- df[!apply(is.na(df), 1, any),]
+
 
 # Correlation between variables
 i_num <- sapply(df, is.numeric)
@@ -46,11 +51,11 @@ df[,c("weight", "height", "age")] <- apply(df[,c("weight", "height","age")], MAR
 
 # Outlier check
 
-boxplot(df [, c("weight", "height", "perobs" , "age") ] , main = "Multiple boxplots for outlier check",
+boxplot(df [, c("weight", "height", "age") ] , main = "Multiple boxplots for outlier check",
  ylim= c(-3,8),      
  horizontal=TRUE,
  boxwex=0.8, 
- boxfill= c("red", "green" , "blue", "orange") 
+ boxfill= c("red", "green" , "blue") 
 
 )
 
