@@ -1,14 +1,12 @@
-Name of Quantlet: SPL_NameofQuantlet (change it)
+Name of Quantlet: SPL_Cleaning
 
 Published in: Statistical programming languages - Student Project on "The Stop-And-Frisk Policy by the New York City Policy Department"
 
-Description: MUST NOT BE EMPTY!
+Description: Data cleaning
 
-Keywords: MUST NOT BE EMPTY!
+Keywords: Missing values, outliers, standardization of entries
 
-Author: MUST NOT BE EMPTY
-
-See also: for listing related, similar Quantlets or Github code from your point of view - delete if not used
+Author:Ece Caliskan
 
 Submitted:  SHOULD NOT BE EMPTY
 
