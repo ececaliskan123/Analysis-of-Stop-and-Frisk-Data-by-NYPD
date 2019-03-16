@@ -95,6 +95,9 @@ mctest::omcdiag(as.matrix(df[, i_num]), df$weaponfound)
 # Doesn't work, session gets aborted after long hours. Therefore, interaction terms were dropped.
 
 glm.model <- parglm(weaponfound ~. -height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 4))
+
+#Or just the regular glm()
+
 glm.modell <- glm(formula = weaponfound ~ . - height, family = binomial(link = "logit"), data = train)
 
 coef <- glm.modell$coefficients
