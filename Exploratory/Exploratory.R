@@ -5,8 +5,7 @@
 rm(list=ls())
 
 source("LoadPackages.R")
-source("1.0_PreProcessing.R", local = FALSE) 
-source("1.1_coordinates.R", local = FALSE)
+source("PreProcessing.R", local = FALSE) 
 
 # Use output from 1.2_hitRate.R directly
 df          = df[df$year!=min(unique(df$year)),]    
@@ -14,8 +13,9 @@ hitRateAll  = readRDS("./Data-rds/hitRate.rds")
 hitRateAll$rowname = as.numeric(hitRateAll$rowname)
 df          = merge(df, hitRateAll, by="rowname")
 df          = df[order(df$year),]
-saveRDS(df, file="df.rds")              
+saveRDS(df, file="df.rds")
 
+df  = readRDS("./PreProcessing/Data-rds/df.rds")
 age = df$age          #Store the original age separately
 
 source("1.3_Cleaning.R", local = FALSE)

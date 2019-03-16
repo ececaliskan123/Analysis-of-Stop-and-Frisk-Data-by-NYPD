@@ -8,8 +8,8 @@ source("LoadPackages.R")
 df2 = readRDS("3.0.rds")  
 df2 = df2[which(df2$year == '2015' | df2$year == '2016'), ]
 
-rf  = readRDS("./Data-rds/yhat.RF.rds")
-lg  = readRDS("./Data-rds/yhat.glm.rds")
+rf  = readRDS("./PreProcessing/Data-rds/yhat.RF.rds")
+lg  = readRDS("./PreProcessing/Data-rds/yhat.glm.rds")
 
 #*************************************
 #Model Assessments

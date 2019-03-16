@@ -4,27 +4,6 @@
 
 rm(list=ls())
 
-#source("LoadPackages.R")
-#source("1.0_PreProcessing.R", local = FALSE) 
-#source("1.1_coordinates.R", local = FALSE)
-#source("1.2_hitRate.R", local = FALSE)
-#source("1.3_Cleaning.R", local = FALSE)
-
-#*************************************
-#Data Processing
-#*************************************
-source("LoadPackages.R")
-source("1.0_PreProcessing.R", local = FALSE) 
-source("1.1_coordinates.R", local = FALSE)
-# Paste 1.2_hitRate.R output directly to skip time-consuming calculation
-df          = df[df$year!=min(unique(df$year)),]  
-hitRateAll  = readRDS("./Data-rds/hitRate.rds")     
-hitRateAll$rowname = as.numeric(hitRateAll$rowname)
-df          = merge(df, hitRateAll, by="rowname")
-df       = df[order(df$year),]
-saveRDS(df, file="df.rds")
-source("1.3_Cleaning.R", local = FALSE)
-
 #=============================
 #1. Read in Homicide Reports
 #=============================
