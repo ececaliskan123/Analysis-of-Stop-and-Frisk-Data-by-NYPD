@@ -35,7 +35,7 @@ source("./Exploratory/Exploratory.R")
 #     4) Quantlet: Replications
 ########################################
 # Author: LingKi Wong
-source("./Replications/Replications")
+source("./Replications/Replications.R")
 
 
 ########################################
