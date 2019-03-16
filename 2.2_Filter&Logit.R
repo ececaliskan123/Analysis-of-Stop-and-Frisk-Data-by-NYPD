@@ -97,12 +97,12 @@ mctest::omcdiag(as.matrix(df[, i_num]), df$weaponfound)
 glm.model <- parglm(weaponfound ~. -height, binomial(), train, control = parglm.control(method = "LINPACK", nthreads = 4))
 glm.modell <- glm(formula = weaponfound ~ . - height, family = binomial(link = "logit"), data = train)
 
-coef <- glm.model$coefficients
+coef <- glm.modell$coefficients
 
-sort(glm.model$coefficients,decreasing = TRUE) [1:10]
-sort(glm.model$coefficients,decreasing = FALSE) [1:10]
+sort(glm.modell$coefficients,decreasing = TRUE) [1:10]
+sort(glm.modell$coefficients,decreasing = FALSE) [1:10]
 
-predict.glm <- predict(glm.model, newdata= test, type = 'response') 
+predict.glm <- predict(glm.modell, newdata= test, type = 'response') 
 
 auc(test$weaponfound,predict.glm)
 
