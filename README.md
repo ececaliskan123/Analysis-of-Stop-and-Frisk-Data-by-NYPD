@@ -1,5 +1,5 @@
-# nypd-stopfrisk
-This project addresses the Stop-And-Frisk Policy by the New York City Policy Department and builds upon the paper "Precinct or prejudice? Understanding racial disparities in New York City's stop-and-frisk policy".
+# The Stops-And-Frisk Policy by the New York City Policy Department
+This project addresses the Stop-And-Frisk Policy by the New York City Policy Department and builds upon the paper "Precinct or prejudice? Understanding racial disparities in New York City's stop-and-frisk policy" (Goel et al., 2016).
 
 # Code Structure
 0) MainFile.R - loads and combines all relevant code snippets in respective order
