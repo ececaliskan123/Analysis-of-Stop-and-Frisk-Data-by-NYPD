@@ -58,9 +58,10 @@ df[, c("year", "formated_date")] <- NULL
 
 
 #Multicollinierarty Test
-library(mctest)
+
 i_num <- sapply(df, is.numeric)
-omcdiag(as.matrix(df[,i_num]), df$weaponfound)
+mctest::omcdiag(as.matrix(df[, i_num]), df$weaponfound)
+
 
 ##### First option: Stochastic Gradient Descent to solve for dimensioanlity of 7K covariates.
 
