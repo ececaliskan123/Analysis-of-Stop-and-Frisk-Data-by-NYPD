@@ -10,34 +10,53 @@
 #       - Post Validation
 # *******************************************************
 
+### set parameters
+perc = 1
+model.choice = "extend" 
+
 # settings for the server -- exclude at the very end!
 # .libPaths("H:/RPackages")
 # setwd("H:/nypd-stopfrisk-master")
 
 
-    ################################
-    ###### DATA PREPARATION ########
-    ################################
+################################
+###### DATA PREPARATION ########
+################################
 
 # This subsection applies necessary conversions, creates interaction terms and splits
 # the data into test and train.
-    
+
 # load the dataset
 df = readRDS("df.rds")
 
 # delete irrelevant columns, which are not part of the modeling process
-df[,c("long","lat","datestop","timestop")] = NULL  
-      # long / lat, because spatial information is captured by local hitRate
-      # datestop & timestop, because timely information is captured by weekday & month
+df[,c("long","lat","formated_date")] = NULL  
+# long / lat, because spatial information is captured by local hitRate
+# datestop & timestop, because timely information is captured by weekday & month
+
+# treat inconsistencies in all columns "additional circumstances" (starting with "ac_")
+
+add_circ = grep("ac_",names(df), value = TRUE) # extract all respective columns 
+
+reduceFactors = function(x){ # function adapted from the cleaning-quantlet
+  x[x==" " | x==0] = "N"
+  x[x == 1] = "Y"
+  
+  return(x)
+}
+
+df[,c(add_circ)] = apply(df[,c(add_circ)] , 2, FUN = reduceFactors)
 
 # convert all characters into factors
 df[sapply(df, is.character)] = lapply(df[sapply(df, is.character)],as.factor)
 
 # convert other relevant columns into factors
-relevant_columns = c("weaponfound","pct","weekday","month")
+relevant_columns = c("weaponfound","pct","weekday","month","year")
 df[, relevant_columns] = lapply(df[, relevant_columns], as.factor)
-    # weaponfound needs to be a factor, since it is a classification problem
-    # pct, weekday and months are factors as well
+# weaponfound needs to be a factor, since it is a classification problem
+# pct, weekday and months are factors as well
+
+
 
 # do a last check if missing values are present
 if(sum(sapply(df,function(x){sum(is.na(x))}) > 0) == 0){
@@ -47,33 +66,34 @@ if(sum(sapply(df,function(x){sum(is.na(x))}) > 0) == 0){
 }
 
 # reduce dimensionality - remove "unknowns"
-df = df[df$sex!="Z" | df$build!="Z",]
-    # both columns only had a few "Z" (i.e., "unknown")
-    # dropping irrelevant factor levels reduces the dimensionality after creating the interaction-terms
+df = df[df$sex!="Z" & df$build!="Z",]
+# both columns only had a few "Z" (i.e., "unknown")
+# dropping irrelevant factor levels reduces the dimensionality after creating the interaction-terms
 
 # remove all unused factor levels - line from stackoverflow -- change it!
+
 df[] = lapply(df, function(x){ # use lapply to address every variable
-    if(is.factor(x)){ 
-      droplevels(x)       # droplevels removes empty factors
-      } else{
-        x
-      }
-  })
+  if(is.factor(x)){ 
+    droplevels(x)       # droplevels removes empty factors
+  } else{
+    x
+  }
+})
 
 # split the dataset into test & train
-    # the following lines are a work-around if one wants to apply the random forest
-    # on a fraction of the observations (for testing purpose only)
+# the following lines are a work-around if one wants to apply the random forest
+# on a fraction of the observations (for testing purpose only)
 
 set.seed(123)         # guarantees comparability in the row-sampling
-percentage  = 0.05   # set one for the whole train/test dataframes 
+percentage  = perc  # set one for the whole train/test dataframes 
 
 # replicate or extend analysis
-choice = "extent" # add "replicate" or "extent"
+choice = model.choice # "replicate" or "extend" defined above
 
 if(choice == "replicate"){ # replicate considers the same years as Goel et al (2016)
   years_train = c(2009,2010) 
   years_test = c(2011,2012)
-}else if(choice == "extent"){ # extent (=default), uses more recent data
+}else if(choice == "extend"){ # extent (=default), uses more recent data
   years_train = c(2013,2014) 
   years_test = c(2015,2016)
 }else{
@@ -81,7 +101,9 @@ if(choice == "replicate"){ # replicate considers the same years as Goel et al (2
 }
 
 train = df[df$year==c(years_train),]
+train$year = droplevels(train$year)
 test = df[df$year==c(years_test),]
+test$year = droplevels(test$year)
 
 # reduce number of observations (if percentage != 1)
 
@@ -119,25 +141,6 @@ test          = merge(test, test.wpfound, by="rowname")
 names(train) = make.names(names(train),unique = TRUE) # create valid names
 names(test) = make.names(names(train),unique = TRUE) # create valid names
 
-# # add wpfound again
-# train = cbind(train,wpfound)
-# train = cbind(train, rowname)
-# names(train)[names(train) == "train$weaponfound"] = "weaponfound" 
-# names(train)[names(train) == "train$rowname"] = "rowname" 
-# train$weaponfound = as.factor(train$weaponfound)
-
-# # make test comparable with train
-# wpfound = as.data.frame(test$weaponfound)
-# rowname = as.data.frame(test$rowname)
-# test$rowname = NULL
-# test = as.data.frame(model.matrix(weaponfound ~ .^2, data=test))
-# names(test) = make.names(names(test),unique = TRUE) # create valid names
-# test = cbind(test,wpfound)
-# test = cbind(test,rowname)
-# names(test)[names(test) == "test$weaponfound"] = "weaponfound" 
-# names(test)[names(test) == "test$rowname"] = "rowname" 
-# test$weaponfound = as.factor(test$weaponfound)
-
 ### try h2o modeling (a machine-learning package making use of multiple CPU cores)
 if(!require("h2o")) install.packages("h2o"); library("h2o") 
 
@@ -163,10 +166,10 @@ system.time(
 # predict on test-data
 #h2o.predict(rforest.model, test.h2o)
 
-yhat.h2o = as.data.frame(h2o.predict(rforest.model, test.h2o))[,3]
+test.h2o$yhat = h2o.predict(rforest.model, test.h2o)[,3]
+yhat.rf = as.data.frame(test.h2o[,c("rowname","yhat")])
+saveRDS(yhat.rf, file="yhat.RF.rds")
 
 # auc for evaluation
 if(!require("ModelMetrics")) install.packages("ModelMetrics"); library("ModelMetrics") 
 auc(test$weaponfound,yhat.h2o)
-
-
