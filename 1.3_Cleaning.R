@@ -26,7 +26,6 @@ df <- df[!apply(is.na(df), 1, any),]
 # Correlation between variables
 i_num <- sapply(df, is.numeric)
 cor(df[,i_num])
-corrplot: corrplot(cor(df[,i_num]))
 
 
 # There are empty entries in Inside or Outside. Set them to NA and then impute.
@@ -117,6 +116,3 @@ df$trhsloc [df$trhsloc == " "]  <- "Z"
 
 
 
-
-  saveRDS(df, file= "df.rds")
-        
